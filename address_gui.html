@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NMS Universal Address & Portal Glyphs Terminal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @font-face {
+      font-family: 'NMSGlyphs';
+      src: url('./NMS-Glyphs-Mono.ttf') format('truetype'),
+           url('NMS-Glyphs.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-color: #050811;
+      color: #e2e8f0;
+      background-image:
+        radial-gradient(circle at 50% 0%, rgba(6, 182, 212, 0.08) 0%, transparent 60%),
+        radial-gradient(circle at 85% 30%, rgba(168, 85, 247, 0.05) 0%, transparent 50%);
+    }
+
+    .glyph-display {
+      font-family: 'NMSGlyphs', monospace;
+      font-size: 20px;
+      color: #ffe600;
+      background: #0d1a24;
+      padding: 4px 8px;
+      border-radius: 4px;
+      letter-spacing: 2px;
+      border: 1px solid #ffe600;
+      display: inline-block;
+      margin: 4px 0;
+      user-select: all;
+    }
+
+    .border-glow-cyan {
+      box-shadow: 0 0 20px rgba(6, 182, 212, 0.2);
+      border: 1px solid rgba(6, 182, 212, 0.4);
+    }
+    .border-glow-amber {
+      box-shadow: 0 0 20px rgba(245, 158, 11, 0.2);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+    }
+    .border-glow-purple {
+      box-shadow: 0 0 20px rgba(168, 85, 247, 0.25);
+      border: 1px solid rgba(168, 85, 247, 0.4);
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #090d16;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1e293b;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #0284c7;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between p-4 md:p-8 selection:bg-cyan-500 selection:text-black">
+
+  <div class="max-w-7xl mx-auto w-full space-y-6">
+
+    <!-- Header Section -->
+    <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-slate-900/90 p-6 rounded-2xl border border-slate-800 border-glow-cyan">
+      <div>
+        <div class="flex items-center gap-3">
+          <span class="inline-block w-3 h-3 rounded-full bg-cyan-400 animate-pulse"></span>
+          <h1 class="text-2xl md:text-3xl font-extrabold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-sky-200 to-amber-300 uppercase">
+            NMS Address & SSI Utility
+          </h1>
+        </div>
+        <p class="text-xs md:text-sm text-slate-400 mt-1">
+          Universal Address Decoding, Portal Glyphs Conversion, Voxel Calculations & Save JSON Refactoring.
+        </p>
+      </div>
+
+      <div id="system-status-badge" class="px-5 py-2.5 rounded-xl text-sm font-bold tracking-wider uppercase flex items-center gap-2 border bg-slate-800 text-slate-300 border-slate-700 shadow-md">
+        <span id="system-status-dot" class="w-2.5 h-2.5 rounded-full bg-slate-400"></span>
+        <span id="system-status-text">Ready for Input</span>
+      </div>
+    </header>
+
+    <main class="space-y-6">
+
+      <!-- Universal Input Box with Validation and Glyph Input Pad -->
+      <section class="bg-slate-900/80 p-6 rounded-2xl border border-slate-800 space-y-4">
+        <h2 class="text-lg font-bold tracking-wide text-cyan-400 uppercase flex items-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+          Universal Address Input Terminal
+        </h2>
+
+        <div class="flex flex-col sm:flex-row gap-3">
+          <input type="text" id="master-address-input" placeholder="Paste Decimal UA, 14-Hex UA, Galactic Address, or 12-Hex Glyphs"
+                 class="bg-slate-950 border border-slate-700 text-slate-100 rounded-xl px-4 py-3 text-sm font-mono flex-1 focus:outline-none focus:border-cyan-500 uppercase">
+          <button onclick="processMasterInput()" class="px-6 py-3 bg-gradient-to-r from-cyan-600 to-sky-600 hover:from-cyan-500 hover:to-sky-500 text-white font-bold rounded-xl text-sm transition-all shadow-md">
+            Parse & Load
+          </button>
+        </div>
+
+        <div id="input-validation-msg" class="text-xs text-slate-400 font-mono">
+          Supported Formats: Decimal UA, 14-char Hex UA, Formatted Hex UA (XXXX:YYYY:ZZZZ:SSI), Decimal UA (X:Y:Z:SSI), 12-Hex Glyphs.
+        </div>
+
+        <!-- Glyph Input Pad -->
+        <div class="pt-3 border-t border-slate-800 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-cyan-400 uppercase tracking-wider">Glyph Input Pad</span>
+            <button type="button" onclick="clearMasterInput()" class="px-3 py-1 bg-rose-950/80 hover:bg-rose-900 border border-rose-800 text-rose-300 font-mono text-xs rounded-lg transition-colors">
+              Clear Input
+            </button>
+          </div>
+
+          <div class="grid grid-cols-8 sm:grid-cols-16 gap-1.5 sm:gap-2">
+            <div id="glyph-font-element-0" class="glyph-display text-center cursor-pointer hover:border-cyan-400 hover:bg-slate-800 transition-colors" onclick="appendGlyphToInput('0')">0</div>
+            <div id="glyph-font-element-1" class="glyph-display text-center cursor-pointer hover:border-cyan-400 hover:bg-slate-800 transition-colors" onclick="appendGlyphToInput('1')">1</div>
+            <div id="glyph-font-element-2" class="glyph-display text-center cursor-pointer hover:border-cyan-400 hover:bg-slate-800 transition-colors" onclick="appendGlyphToInput('2')">2</div>
+            <div id="glyph-font-element-3" class="glyph-display text-center cursor-pointer hover:border-cyan-400 hover:bg-slate-800 transition-colors" onclick="appendGlyphToInput('3')">3</div>
+            <div id="glyph-font-element-4" class="glyph-display text-center cursor-pointer hover:border-cyan-400 hover:bg-slate-800 transition-colors" onclick="appendGlyphToInput('4')">4</div>
+            <div id="glyph-font-element-5" class="glyph-display text-center cursor-pointer hover:border-cyan-400 hover:bg-slate-800 transition-colors" onclick="appendGlyphToInput('5')">5</div>
+            <div id="glyph-font-element-6" class="glyph-display text-center cursor-pointer hover:border-cyan-400 hover:bg-slate-800 transition-colors" onclick="appendGlyphToInput('6')">6</div>
+            <div id="glyph-font-element-7" class="glyph-display text-center cursor-pointer hover:border-cyan-400 hover:bg-slate-800 transition-colors" onclick="appendGlyphToInput('7')">7</div>
+            <div id="glyph-font-element-8" class="glyph-display text-center cursor-pointer hover:border-cyan-400 hover:bg-slate-800 transition-colors" onclick="appendGlyphToInput('8')">8</div>
+            <div id="glyph-font-element-9" class="glyph-display text-center cursor-pointer hover:border-cyan-400 hover:bg-slate-800 transition-colors" onclick="appendGlyphToInput('9')">9</div>
+            <div id="glyph-font-element-a" class="glyph-display text-center cursor-pointer hover:border-cyan-400 hover:bg-slate-800 transition-colors" onclick="appendGlyphToInput('A')">A</div>
+            <div id="glyph-font-element-b" class="glyph-display text-center cursor-pointer hover:border-cyan-400 hover:bg-slate-800 transition-colors" onclick="appendGlyphToInput('B')">B</div>
+            <div id="glyph-font-element-c" class="glyph-display text-center cursor-pointer hover:border-cyan-400 hover:bg-slate-800 transition-colors" onclick="appendGlyphToInput('C')">C</div>
+            <div id="glyph-font-element-d" class="glyph-display text-center cursor-pointer hover:border-cyan-400 hover:bg-slate-800 transition-colors" onclick="appendGlyphToInput('D')">D</div>
+            <div id="glyph-font-element-e" class="glyph-display text-center cursor-pointer hover:border-cyan-400 hover:bg-slate-800 transition-colors" onclick="appendGlyphToInput('E')">E</div>
+            <div id="glyph-font-element-f" class="glyph-display text-center cursor-pointer hover:border-cyan-400 hover:bg-slate-800 transition-colors" onclick="appendGlyphToInput('F')">F</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Active Address Editor & Controls -->
+      <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- Tweakable State Form -->
+        <div class="bg-slate-900/80 p-6 rounded-2xl border border-slate-800 space-y-4 lg:col-span-2">
+          <h2 class="text-lg font-bold tracking-wide text-amber-400 uppercase flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+            Address State Editor
+          </h2>
+
+          <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-5 gap-3">
+            <div>
+              <label class="block text-[11px] text-slate-400 mb-1">Planet Index (0-15)</label>
+              <input type="number" id="edit-planet" min="0" max="15" class="w-full bg-slate-950 border border-slate-700 text-cyan-300 font-mono text-sm rounded-xl p-2.5 focus:outline-none focus:border-cyan-500">
+            </div>
+            <div>
+              <label class="block text-[11px] text-slate-400 mb-1">Solar System Index (SSI)</label>
+              <input type="number" id="edit-ssi" min="0" max="4095" class="w-full bg-slate-950 border border-amber-500/50 text-amber-300 font-mono text-sm rounded-xl p-2.5 focus:outline-none focus:border-amber-500">
+            </div>
+            <div>
+              <label class="block text-[11px] text-slate-400 mb-1">Voxel X (-2048 to 2047)</label>
+              <input type="number" id="edit-vx" min="-2048" max="2047" class="w-full bg-slate-950 border border-slate-700 text-purple-300 font-mono text-sm rounded-xl p-2.5 focus:outline-none focus:border-cyan-500">
+            </div>
+            <div>
+              <label class="block text-[11px] text-slate-400 mb-1">Voxel Y (-128 to 127)</label>
+              <input type="number" id="edit-vy" min="-128" max="127" class="w-full bg-slate-950 border border-slate-700 text-emerald-300 font-mono text-sm rounded-xl p-2.5 focus:outline-none focus:border-cyan-500">
+            </div>
+            <div>
+              <label class="block text-[11px] text-slate-400 mb-1">Voxel Z (-2048 to 2047)</label>
+              <input type="number" id="edit-vz" min="-2048" max="2047" class="w-full bg-slate-950 border border-slate-700 text-sky-300 font-mono text-sm rounded-xl p-2.5 focus:outline-none focus:border-cyan-500">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+            <div>
+              <label class="block text-[11px] text-slate-400 mb-1">Galaxy (Reality Index)</label>
+              <select id="edit-galaxy" class="w-full bg-slate-950 border border-slate-700 text-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-cyan-500">
+                <!-- Populated by JS -->
+              </select>
+            </div>
+            <div class="flex items-end">
+              <button onclick="applyManualEdits()" class="w-full py-2 bg-amber-600/80 hover:bg-amber-500 text-white font-bold rounded-xl text-sm transition-all border border-amber-500">
+                Apply Modifications
+              </button>
+            </div>
+          </div>
+
+          <!-- Interactive SSI Range Spectrum Track -->
+          <div class="pt-3 border-t border-slate-800 space-y-2">
+            <div class="flex justify-between items-center text-xs font-bold text-amber-400 uppercase">
+              <span>SSI Range Spectrum Scrub Track</span>
+              <span id="ssi-spectrum-label" class="font-mono text-cyan-300 text-[11px]">Active SSI: 0x0001 (1)</span>
+            </div>
+            <div class="w-full bg-slate-950 h-6 rounded-xl border border-slate-800 overflow-hidden flex cursor-pointer relative" id="ssi-spectrum-track">
+              <div onclick="setSSIPreset(1)" title="Core System Band (0x001 - 0x078)" class="h-full bg-yellow-500/40 hover:bg-yellow-500/70 transition-colors border-r border-slate-900" style="width: 4.68%;"></div>
+              <div onclick="setSSIPreset(121)" title="Regional Black Hole (0x0079)" class="h-full bg-rose-500 hover:bg-rose-400 transition-colors border-r border-slate-900" style="width: 0.2%;"></div>
+              <div onclick="setSSIPreset(122)" title="Regional Atlas Interface (0x007A)" class="h-full bg-cyan-400 hover:bg-cyan-300 transition-colors border-r border-slate-900" style="width: 0.2%;"></div>
+              <div onclick="setSSIPreset(123)" title="Expanded Mixed Spectral (0x007B - 0x0122)" class="h-full bg-amber-600/40 hover:bg-amber-600/70 transition-colors border-r border-slate-900" style="width: 4.12%;"></div>
+              <div onclick="setSSIPreset(291)" title="Colored Stars (Cadmium/Emeril/Indium) (0x0123 - 0x0250)" class="h-full bg-emerald-500/40 hover:bg-emerald-500/70 transition-colors border-r border-slate-900" style="width: 7.37%;"></div>
+              <div onclick="setSSIPreset(593)" title="Glass Star Threshold (0x0251 - 0x0258)" class="h-full bg-sky-400/60 hover:bg-sky-400 transition-colors border-r border-slate-900" style="width: 0.2%;"></div>
+              <div onclick="setSSIPreset(601)" title="Universal Phantom Boundary (0x0259 - 0x03E7)" class="h-full bg-purple-600/50 hover:bg-purple-600/80 transition-colors border-r border-slate-900" style="width: 9.74%;"></div>
+              <div onclick="setSSIPreset(1000)" title="Corrupted & Dissonant Allocations (0x03E8 - 0x0429)" class="h-full bg-fuchsia-600/60 hover:bg-fuchsia-600/90 transition-colors border-r border-slate-900" style="width: 1.61%;"></div>
+              <div onclick="setSSIPreset(1066)" title="High Phantom Space (0x042A - 0x0FFE)" class="h-full bg-indigo-900/60 hover:bg-indigo-900 transition-colors border-r border-slate-900" style="width: 71.78%;"></div>
+              <div onclick="setSSIPreset(4095)" title="Reserved Overflow Boundary (0x0FFF)" class="h-full bg-red-600 hover:bg-red-500 transition-colors" style="width: 0.1%;"></div>
+            </div>
+            <div class="flex justify-between text-[9px] font-mono text-slate-500">
+              <span>0x000 (0)</span>
+              <span>0x079/7A</span>
+              <span>0x250 (592)</span>
+              <span>0x3E8 (1000)</span>
+              <span>0x0FFF (4095)</span>
+            </div>
+          </div>
+
+          <!-- SSI Structured Categorized Matrix Presets -->
+          <div class="pt-3 border-t border-slate-800 space-y-3">
+            <span class="block text-xs font-bold text-amber-400 uppercase">SSI Range & Behavioral Matrix Presets</span>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <!-- Column 1: Core System Bands -->
+              <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-2">
+                <span class="block text-[11px] font-bold text-yellow-400 uppercase border-b border-slate-800 pb-1">Core Systems & Hubs</span>
+                <div class="grid grid-cols-2 gap-1.5">
+                  <button onclick="setSSIPreset(1)" class="p-1.5 bg-slate-900 hover:bg-slate-800 border border-yellow-500/40 rounded-lg text-xs font-mono text-yellow-300 text-center">
+                    0x0001<br><span class="text-[9px] text-slate-400">Standard Core</span>
+                  </button>
+                  <button onclick="setSSIPreset(121)" class="p-1.5 bg-slate-900 hover:bg-slate-800 border border-rose-500/50 rounded-lg text-xs font-mono text-rose-300 text-center">
+                    0x0079<br><span class="text-[9px] text-rose-400">Black Hole</span>
+                  </button>
+                  <button onclick="setSSIPreset(122)" class="p-1.5 bg-slate-900 hover:bg-slate-800 border border-cyan-500/50 rounded-lg text-xs font-mono text-cyan-300 text-center">
+                    0x007A<br><span class="text-[9px] text-cyan-400">Atlas Station</span>
+                  </button>
+                  <button onclick="setSSIPreset(200)" class="p-1.5 bg-slate-900 hover:bg-slate-800 border border-amber-500/40 rounded-lg text-xs font-mono text-amber-300 text-center">
+                    0x00C8<br><span class="text-[9px] text-slate-400">Binary/Ternary</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Column 2: Spectral & Special -->
+              <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-2">
+                <span class="block text-[11px] font-bold text-emerald-400 uppercase border-b border-slate-800 pb-1">Spectral & Stellar Bands</span>
+                <div class="grid grid-cols-2 gap-1.5">
+                  <button onclick="setSSIPreset(300)" class="p-1.5 bg-slate-900 hover:bg-slate-800 border border-emerald-500/40 rounded-lg text-xs font-mono text-emerald-300 text-center">
+                    0x012C<br><span class="text-[9px] text-emerald-400">RGB Spectral</span>
+                  </button>
+                  <button onclick="setSSIPreset(593)" class="p-1.5 bg-slate-900 hover:bg-slate-800 border border-sky-500/50 rounded-lg text-xs font-mono text-sky-300 text-center">
+                    0x0251<br><span class="text-[9px] text-sky-400">Glass Candidate</span>
+                  </button>
+                  <button onclick="setSSIPreset(1000)" class="p-1.5 bg-slate-900 hover:bg-slate-800 border border-fuchsia-500/50 rounded-lg text-xs font-mono text-fuchsia-300 text-center">
+                    0x03E8<br><span class="text-[9px] text-fuchsia-400">Dissonant Core</span>
+                  </button>
+                  <button onclick="setSSIPreset(1065)" class="p-1.5 bg-slate-900 hover:bg-slate-800 border border-purple-500/50 rounded-lg text-xs font-mono text-purple-300 text-center">
+                    0x0429<br><span class="text-[9px] text-purple-400">Hard Shadow</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Column 3: Phantom & Out-of-Bounds -->
+              <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-2">
+                <span class="block text-[11px] font-bold text-purple-400 uppercase border-b border-slate-800 pb-1">Corrupted & Phantom</span>
+                <div class="grid grid-cols-2 gap-1.5">
+                  <button onclick="setSSIPreset(601)" class="p-1.5 bg-slate-900 hover:bg-slate-800 border border-purple-500/50 rounded-lg text-xs font-mono text-purple-300 text-center">
+                    0x0259<br><span class="text-[9px] text-purple-400">Min Phantom</span>
+                  </button>
+                  <button onclick="setSSIPreset(2048)" class="p-1.5 bg-slate-900 hover:bg-slate-800 border border-indigo-500/50 rounded-lg text-xs font-mono text-indigo-300 text-center">
+                    0x0800<br><span class="text-[9px] text-indigo-400">High Phantom</span>
+                  </button>
+                  <button onclick="setRandomPhantomSSI()" class="p-1.5 bg-slate-900 hover:bg-slate-800 border border-cyan-500/50 rounded-lg text-xs font-mono text-cyan-300 text-center">
+                    RAND<br><span class="text-[9px] text-cyan-400">Rand Phantom</span>
+                  </button>
+                  <button onclick="setSSIPreset(4095)" class="p-1.5 bg-slate-900 hover:bg-slate-800 border border-rose-600 rounded-lg text-xs font-mono text-rose-300 text-center">
+                    0x0FFF<br><span class="text-[9px] text-rose-400">Overflow Lock</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Rendered Portal Glyphs Display & Live Dynamic Behavioral Card -->
+        <div class="bg-slate-900/80 p-6 rounded-2xl border border-slate-800 flex flex-col justify-between space-y-4">
+          <div>
+            <h2 class="text-lg font-bold tracking-wide text-sky-400 uppercase flex items-center gap-2 mb-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+              Portal Glyph Sequence
+            </h2>
+
+            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-center space-y-3">
+              <div id="glyph-font-element" class="glyph-display">407B1E064095</div>
+              <div id="glyph-hex-code" class="text-xs font-mono text-cyan-300 font-bold">407B1E064095</div>
+            </div>
+
+            <!-- Dynamic Stellar Behavioral Card -->
+            <div id="ssi-behavior-card" class="mt-4 p-3 bg-slate-950 rounded-xl border border-slate-800 space-y-2">
+              <div class="flex justify-between items-center border-b border-slate-800 pb-1.5">
+                <span id="behavior-band-title" class="text-xs font-bold text-yellow-400 uppercase">Core System Band</span>
+                <span id="behavior-band-hex" class="text-[10px] font-mono text-slate-400">0x001 – 0x078</span>
+              </div>
+              <div class="text-[11px] space-y-1 font-mono">
+                <p class="text-slate-300"><span class="text-slate-500">Stellar Class:</span> <span id="behavior-stellar-class" class="text-yellow-200">Yellow Stars / Primary Regional Core</span></p>
+                <p class="text-slate-300"><span class="text-slate-500">Generation Rules:</span> <span id="behavior-gen-rules" class="text-slate-300">High 5-6 planet density; high populated station rate.</span></p>
+                <p class="text-slate-300"><span class="text-slate-500">Portal Exit:</span> <span id="behavior-portal-exit" class="text-emerald-400">Valid Destination Node</span></p>
+                <p class="text-slate-300"><span class="text-slate-500">Galaxy Map:</span> <span id="behavior-map-vis" class="text-cyan-300">Standard Rendered Star Node</span></p>
+              </div>
+            </div>
+
+            <div class="mt-3">
+              <label class="block text-[11px] text-slate-400 mb-1">Glyph Names Breakdown</label>
+              <div id="glyph-names-list" class="text-xs font-mono text-slate-300 bg-slate-950 p-2.5 rounded-xl border border-slate-800 max-h-24 overflow-y-auto">
+                <!-- Populated by JS -->
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 pt-2">
+            <button onclick="copyToClipboardText(document.getElementById('glyph-hex-code').textContent, 'Glyph Hex Sequence')" class="py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-cyan-300 font-semibold rounded-xl text-xs transition-colors">
+              Copy Hex Glyphs
+            </button>
+            <button onclick="copyToClipboardText(document.getElementById('glyph-names-list').textContent, 'Glyph Names Array')" class="py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-emerald-300 font-semibold rounded-xl text-xs transition-colors">
+              Copy Names
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Derived Address Outputs & Representations -->
+      <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        <!-- Universal Address Representations -->
+        <div class="bg-slate-900/80 p-6 rounded-2xl border border-slate-800 space-y-4">
+          <h2 class="text-lg font-bold tracking-wide text-sky-400 uppercase flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A2 2 0 013 15.482V6.518a2 2 0 011.053-1.764L9 2m0 18l6-3m-6 3V2m6 18l5.447-2.724A2 2 0 0021 15.482V6.518a2 2 0 00-1.053-1.764L15 2m0 18V2m0 0L9 5"></path></svg>
+            Universal Address Output States
+          </h2>
+
+          <div class="space-y-3">
+            <div>
+              <label class="block text-xs text-slate-400 mb-1">Decimal Universal Address (BigInt UA)</label>
+              <div class="flex gap-2">
+                <input type="text" id="out-dec-ua" readonly class="w-full bg-slate-950 border border-slate-800 text-amber-300 font-mono text-sm rounded-xl px-3 py-2">
+                <button onclick="copyToClipboard('out-dec-ua')" class="px-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 rounded-xl text-xs font-bold">Copy</button>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs text-slate-400 mb-1">14-Character Hex Universal Address (0x...)</label>
+              <div class="flex gap-2">
+                <input type="text" id="out-hex-ua" readonly class="w-full bg-slate-950 border border-slate-800 text-cyan-300 font-mono text-sm rounded-xl px-3 py-2">
+                <button onclick="copyToClipboard('out-hex-ua')" class="px-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 rounded-xl text-xs font-bold">Copy</button>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs text-slate-400 mb-1">Galactic Voxel Format (XXXX:YYYY:ZZZZ:SSI)</label>
+              <div class="flex gap-2">
+                <input type="text" id="out-voxel-ua" readonly class="w-full bg-slate-950 border border-slate-800 text-purple-300 font-mono text-sm rounded-xl px-3 py-2">
+                <button onclick="copyToClipboard('out-voxel-ua')" class="px-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 rounded-xl text-xs font-bold">Copy</button>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs text-slate-400 mb-1">Signed Voxel Coordinates (X:Y:Z:SSI)</label>
+              <div class="flex gap-2">
+                <input type="text" id="out-signed-ua" readonly class="w-full bg-slate-950 border border-slate-800 text-emerald-300 font-mono text-sm rounded-xl px-3 py-2">
+                <button onclick="copyToClipboard('out-signed-ua')" class="px-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 rounded-xl text-xs font-bold">Copy</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Player Location JSON Output -->
+        <div class="bg-slate-900/80 p-6 rounded-2xl border border-slate-800 space-y-4 flex flex-col justify-between">
+          <div>
+            <div class="flex justify-between items-center mb-2">
+              <h2 class="text-lg font-bold tracking-wide text-purple-400 uppercase flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+                Player Location JSON Snippet
+              </h2>
+              <button onclick="copyToClipboardText(document.getElementById('player-json-output').textContent, 'Player JSON')" class="text-xs text-purple-300 hover:text-purple-200 bg-purple-950 border border-purple-800 px-3 py-1 rounded-lg">
+                Copy JSON
+              </button>
+            </div>
+            <pre id="player-json-output" class="bg-slate-950 p-4 rounded-xl text-xs font-mono text-purple-300 border border-slate-800 overflow-x-auto min-h-[170px]"></pre>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 pt-2">
+            <button onclick="reversePlayerJsonToUA('hex')" class="py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-cyan-300 font-bold rounded-xl text-xs transition-colors">
+              Reverse JSON to UA Hex
+            </button>
+            <button onclick="reversePlayerJsonToUA('dec')" class="py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-300 font-bold rounded-xl text-xs transition-colors">
+              Reverse JSON to UA Dec
+            </button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="text-center text-xs text-slate-500 py-2">
+      No Man's Sky Universal Address Refactor Utility • Built with custom NMS math functions
+    </footer>
+  </div>
+
+  <div id="toast" class="fixed bottom-5 right-5 bg-cyan-600 text-white font-semibold text-sm px-4 py-2.5 rounded-xl shadow-2xl opacity-0 transition-opacity duration-300 pointer-events-none flex items-center gap-2">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+    <span id="toast-message">Copied to clipboard!</span>
+  </div>
+
+  <!-- App Script with Embedded NMS Math Functions -->
+  <script>
+    // NMS Glyph Names
+    const NMS_GLYPHS = [
+      "Sunset", "Bird", "Face", "Diplo", "Eclipse",
+      "Balloon", "Boat", "Bug", "Dragonfly", "Galaxy",
+      "Voxel", "Fish", "Tent", "Rocket", "Tree", "Atlas"
+    ];
+
+    // NMS Galaxy Names
+    const GALAXY_NAMES = [
+      "Euclid", "Hilbert Dimension", "Calypso", "Hesperius Dimension", "Hyades", "Ickjamatew", "Budullangr", "Kikolgallr", "Eltiensleen", "Eissentam", "Elkupalos", "Aptarkaba", "Ontiniangp", "Odiwagiri", "Ogtialabi", "Muhacksonto", "Hitonskyer", "Rerasmutul", "Isdoraijung", "Doctinawyra", "Loychazinq", "Zukasizawa", "Ekwathore", "Yeberhahne", "Twerbetek", "Sivarates", "Eajerandal", "Aldukesci", "Wotyarogii", "Sudzerbal", "Maupenzhay", "Sugueziume", "Brogoweldian", "Ehbogdenbu", "Ijsenufryos", "Nipikulha", "Autsurabin", "Lusontrygiamh", "Rewmanawa", "Ethiophodhe", "Urastrykle", "Xobeurindj", "Oniijialdu", "Wucetosucc", "Ebyeloof", "Odyavanta", "Milekistri", "Waferganh", "Agnusopwit", "Teyaypilny", "Zalienkosm", "Ladgudiraf", "Mushonponte", "Amsentisz", "Fladiselm", "Laanawemb", "Ilkerloor", "Davanossi", "Ploehrliou", "Corpinyaya", "Leckandmeram", "Quulngais", "Nokokipsechl", "Rinblodesa", "Loydporpen", "Ibtrevskip", "Elkowaldb", "Heholhofsko", "Yebrilowisod", "Husalvangewi", "Ovna'uesed", "Bahibusey", "Nuybeliaure", "Doshawchuc", "Ruckinarkh", "Thorettac", "Nuponoparau", "Moglaschil", "Uiweupose", "Nasmilete", "Ekdaluskin", "Hakapanasy", "Dimonimba", "Cajaccari", "Olonerovo", "Umlanswick", "Henayliszm", "Utzenmate", "Umirpaiya", "Paholiang", "Iaereznika", "Yudukagath", "Boealalosnj", "Yaevarcko", "Coellosipp", "Wayndohalou", "Smoduraykl", "Apmaneessu", "Hicanpaav", "Akvasanta", "Tuychelisaor", "Rivskimbe", "Daksanquix", "Kissonlin", "Aediabiel", "Ulosaginyik", "Roclaytonycar", "Kichiaroa", "Irceauffey", "Nudquathsenfe", "Getaizakaal", "Hansolmien", "Bloytisagra", "Ladsenlay", "Luyugoslasr", "Ubredhatk", "Cidoniana", "Jasinessa", "Torweierf", "Saffneckm", "Thnistner", "Dotusingg", "Luleukous", "Jelmandan", "Otimanaso", "Enjaxusanto", "Sezviktorew", "Zikehpm", "Bephembah", "Broomerrai", "Meximicka", "Venessika", "Gaiteseling", "Zosakasiro", "Drajayanes", "Ooibekuar", "Urckiansi", "Dozivadido", "Emiekereks", "Meykinunukur", "Kimycuristh", "Roansfien", "Isgarmeso", "Daitibeli", "Gucuttarik", "Enlaythie", "Drewweste", "Akbulkabi", "Homskiw", "Zavainlani", "Jewijkmas", "Itlhotagra", "Podalicess", "Hiviusauer", "Halsebenk", "Puikitoac", "Gaybakuaria", "Grbodubhe", "Rycempler", "Indjalala", "Fontenikk", "Pasycihelwhee", "Ikbaksmit", "Telicianses", "Oyleyzhan", "Uagerosat", "Impoxectin", "Twoodmand", "Hilfsesorbs", "Ezdaranit", "Wiensanshe", "Ewheelonc", "Litzmantufa", "Emarmatosi", "Mufimbomacvi", "Wongquarum", "Hapirajua", "Igbinduina", "Wepaitvas", "Sthatigudi", "Yekathsebehn", "Ebedeagurst", "Nolisonia", "Ulexovitab", "Iodhinxois", "Irroswitzs", "Bifredait", "Beiraghedwe", "Yeonatlak", "Cugnatachh", "Nozoryenki", "Ebralduri", "Evcickcandj", "Ziybosswin", "Heperclait", "Sugiuniam", "Aaseertush", "Uglyestemaa", "Horeroedsh", "Drundemiso", "Ityanianat", "Purneyrine", "Dokiessmat", "Nupiacheh", "Dihewsonj", "Rudrailhik", "Tweretnort", "Snatreetze", "Iwundaracos", "Digarlewena", "Erquagsta", "Logovoloin", "Boyaghosganh", "Kuolungau", "Pehneldept", "Yevettiiqidcon", "Sahliacabru", "Noggalterpor", "Chmageaki", "Veticueca", "Vittesbursul", "Nootanore", "Innebdjerah", "Kisvarcini", "Cuzcogipper", "Pamanhermonsu", "Brotoghek", "Mibittara", "Huruahili", "Raldwicarn", "Ezdartlic", "Badesclema", "Isenkeyan", "Iadoitesu", "Yagrovoisi", "Ewcomechio", "Inunnunnoda", "Dischiutun", "Yuwarugha", "Ialmendra", "Reponudrle", "Rinjanagrbo", "Zeziceloh", "Oeileutasc", "Zicniijinis", "Dugnowarilda", "Neuxoisan", "Ilmenhorn", "Rukwatsuku", "Nepitzaspru", "Chcehoemig", "Haffneyrin", "Uliciawai", "Tuhgrespod", "Iousongola", "Odyalutai"
+    ];
+
+    // Core Address State Object
+    let activeAddressState = {
+      planetIndex: 0,
+      solarSystemIndex: 1,
+      realityIndex: 0,
+      voxelX: 50,
+      voxelY: 126,
+      voxelZ: 50
+    };
+
+    function DecToHex(decimalValue) {
+      return BigInt(decimalValue).toString(16).toUpperCase().padStart(14, '0');
+    }
+
+    function decodeDecimalGalacticAddress(decimalValue) {
+      return BigInt(decimalValue).toString(16).toUpperCase().padStart(14, '0');
+    }
+
+    function decodeUniversalAddress(uaString) {
+      const hex = uaString.startsWith('0x') ? uaString.slice(2) : uaString;
+
+      if (hex.length !== 14) {
+        throw new Error('Invalid length: Universal Address must be 14 hex characters.');
+      }
+
+      const planetIndex = parseInt(hex.substring(0, 1), 16);
+      const solarSystemIndex = parseInt(hex.substring(1, 4), 16);
+      const galaxyIndex = parseInt(hex.substring(4, 6), 16);
+
+      const hexY = hex.substring(6, 8);
+      const hexZ = hex.substring(8, 11);
+      const hexX = hex.substring(11, 14);
+
+      const parseSigned = (hexStr, bits) => {
+        let val = parseInt(hexStr, 16);
+        const max = 1 << bits;
+        return val >= (max >> 1) ? val - max : val;
+      };
+
+      return {
+        planetIndex,
+        solarSystemIndex,
+        realityIndex: galaxyIndex,
+        galaxyName: GALAXY_NAMES[galaxyIndex] || `Galaxy ${galaxyIndex + 1}`,
+        rawHexCoordinates: { x: hexX, y: hexY, z: hexZ },
+        signedVoxels: {
+          x: parseSigned(hexX, 12),
+          y: parseSigned(hexY, 8),
+          z: parseSigned(hexZ, 12)
+        }
+      };
+    }
+
+    function universalAddressToGlyphs(hex14) {
+      const hex = hex14.startsWith('0x') ? hex14.slice(2) : hex14;
+      const p = hex.substring(0, 1);
+      const sss = hex.substring(1, 4);
+      const yy = hex.substring(6, 8);
+      const zzz = hex.substring(8, 11);
+      const xxx = hex.substring(11, 14);
+
+      const portalCode = `${p}${sss}${yy}${zzz}${xxx}`;
+      const glyphSequence = portalCode.split('').map(char => NMS_GLYPHS[parseInt(char, 16)]);
+
+      return { portalCode, glyphSequence };
+    }
+
+    function encodeToUniversalHex(state) {
+      const encodeSigned = (val, bits, digits) => {
+        const max = 1 << bits;
+        let masked = val < 0 ? val + max : val;
+        return masked.toString(16).toUpperCase().padStart(digits, '0');
+      };
+
+      const p = (state.planetIndex & 0xF).toString(16).toUpperCase();
+      const sss = (state.solarSystemIndex & 0xFFF).toString(16).toUpperCase().padStart(3, '0');
+      const gg = (state.realityIndex & 0xFF).toString(16).toUpperCase().padStart(2, '0');
+      const yy = encodeSigned(state.voxelY, 8, 2);
+      const zzz = encodeSigned(state.voxelZ, 12, 3);
+      const xxx = encodeSigned(state.voxelX, 12, 3);
+
+      return `${p}${sss}${gg}${yy}${zzz}${xxx}`;
+    }
+
+    function encodeToUniversalDec(state) {
+      const hex = encodeToUniversalHex(state);
+      return BigInt('0x' + hex).toString();
+    }
+
+    // App Initialization
+    document.addEventListener("DOMContentLoaded", () => {
+      populateGalaxyDropdown();
+      document.getElementById("master-address-input").value = "000000000000000";
+      processMasterInput();
+    });
+
+    function populateGalaxyDropdown() {
+      const select = document.getElementById("edit-galaxy");
+      select.innerHTML = "";
+      for (let i = 0; i < 256; i++) {
+        const name = GALAXY_NAMES[i] ? `${i}: ${GALAXY_NAMES[i]}` : `${i}: Galaxy ${i + 1}`;
+        const option = document.createElement("option");
+        option.value = i;
+        option.textContent = name;
+        select.appendChild(option);
+      }
+    }
+
+    // Glyph Pad Append and Clear Functions
+    function appendGlyphToInput(hexChar) {
+      const inputEl = document.getElementById("master-address-input");
+      inputEl.value += hexChar;
+
+      if (inputEl.value.length === 12) {
+        processMasterInput();
+      }
+    }
+
+    function clearMasterInput() {
+      const inputEl = document.getElementById("master-address-input");
+      inputEl.value = "";
+      inputEl.focus();
+    }
+
+    // Master Input Parser & Router
+    function processMasterInput() {
+      const rawInput = document.getElementById("master-address-input").value.trim();
+      const validationEl = document.getElementById("input-validation-msg");
+
+      if (!rawInput) {
+        validationEl.textContent = "Error: Input string is empty.";
+        validationEl.className = "text-xs text-rose-400 font-mono";
+        return;
+      }
+
+      try {
+        let hex14 = "";
+
+        if (/^\d{12,18}$/.test(rawInput)) {
+          hex14 = decodeDecimalGalacticAddress(rawInput);
+          validationEl.textContent = `Parsed Format: Decimal Universal Address BigInt -> Hex: 0x${hex14}`;
+        }
+        else if (/^(0x)?[0-9a-fA-F]{14}$/.test(rawInput)) {
+          hex14 = rawInput.startsWith('0x') ? rawInput.slice(2).toUpperCase() : rawInput.toUpperCase();
+          validationEl.textContent = `Parsed Format: 14-Hex Universal Address -> 0x${hex14}`;
+        }
+        else if (rawInput.includes(':') && rawInput.split(':').length === 4) {
+          const parts = rawInput.split(':');
+          const [xHex, yHex, zHex, ssiHex] = parts;
+
+          const voxelX = parseInt(xHex, 16) >= 0x800 ? parseInt(xHex, 16) - 0x1000 : parseInt(xHex, 16);
+          const voxelY = parseInt(yHex, 16) >= 0x80 ? parseInt(yHex, 16) - 0x100 : parseInt(yHex, 16);
+          const voxelZ = parseInt(zHex, 16) >= 0x800 ? parseInt(zHex, 16) - 0x1000 : parseInt(zHex, 16);
+          const ssi = parseInt(ssiHex, 16);
+
+          activeAddressState = {
+            planetIndex: activeAddressState.planetIndex || 0,
+            solarSystemIndex: ssi,
+            realityIndex: activeAddressState.realityIndex || 0,
+            voxelX: voxelX,
+            voxelY: voxelY,
+            voxelZ: voxelZ
+          };
+
+          validationEl.textContent = `Parsed Format: Formatted Voxel Coordinates (XXXX:YYYY:ZZZZ:SSI)`;
+          renderStateToInterface();
+          return;
+        }
+        else if (/^[0-9a-fA-F]{12}$/.test(rawInput)) {
+          const glyphsHex = rawInput.toUpperCase();
+          const planet = parseInt(glyphsHex[0], 16);
+          const ssi = parseInt(glyphsHex.substring(1, 4), 16);
+          const rawY = parseInt(glyphsHex.substring(4, 6), 16);
+          const rawZ = parseInt(glyphsHex.substring(6, 9), 16);
+          const rawX = parseInt(glyphsHex.substring(9, 12), 16);
+
+          const parseSigned = (val, bits) => {
+            const max = 1 << bits;
+            return val >= (max >> 1) ? val - max : val;
+          };
+
+          activeAddressState = {
+            planetIndex: planet,
+            solarSystemIndex: ssi,
+            realityIndex: activeAddressState.realityIndex || 0,
+            voxelX: parseSigned(rawX, 12),
+            voxelY: parseSigned(rawY, 8),
+            voxelZ: parseSigned(rawZ, 12)
+          };
+
+          validationEl.textContent = `Parsed Format: 12-Hex Glyph Sequence`;
+          renderStateToInterface();
+          return;
+        }
+        else {
+          throw new Error("Unrecognized address format. Please check your input string.");
+        }
+
+        const decoded = decodeUniversalAddress(hex14);
+        activeAddressState = {
+          planetIndex: decoded.planetIndex,
+          solarSystemIndex: decoded.solarSystemIndex,
+          realityIndex: decoded.realityIndex,
+          voxelX: decoded.signedVoxels.x,
+          voxelY: decoded.signedVoxels.y,
+          voxelZ: decoded.signedVoxels.z
+        };
+
+        validationEl.className = "text-xs text-emerald-400 font-mono";
+        renderStateToInterface();
+
+      } catch (err) {
+        validationEl.textContent = `Validation Error: ${err.message}`;
+        validationEl.className = "text-xs text-rose-400 font-mono";
+      }
+    }
+
+    // Sync State to Form Controls, Dynamic Behavioral Card, & Outputs
+    function renderStateToInterface() {
+      document.getElementById("edit-planet").value = activeAddressState.planetIndex;
+      document.getElementById("edit-ssi").value = activeAddressState.solarSystemIndex;
+      document.getElementById("edit-vx").value = activeAddressState.voxelX;
+      document.getElementById("edit-vy").value = activeAddressState.voxelY;
+      document.getElementById("edit-vz").value = activeAddressState.voxelZ;
+      document.getElementById("edit-galaxy").value = activeAddressState.realityIndex;
+
+      const hex14 = encodeToUniversalHex(activeAddressState);
+      const decUA = encodeToUniversalDec(activeAddressState);
+
+      document.getElementById("out-dec-ua").value = decUA;
+      document.getElementById("out-hex-ua").value = `0x${hex14}`;
+
+      const encodeSignedHex = (val, bits, digits) => {
+        const max = 1 << bits;
+        let masked = val < 0 ? val + max : val;
+        return masked.toString(16).toUpperCase().padStart(digits, '0');
+      };
+
+      const xHex = encodeSignedHex(activeAddressState.voxelX, 12, 4);
+      const yHex = encodeSignedHex(activeAddressState.voxelY, 8, 4);
+      const zHex = encodeSignedHex(activeAddressState.voxelZ, 12, 4);
+      const ssiHex = activeAddressState.solarSystemIndex.toString(16).toUpperCase().padStart(4, '0');
+
+      document.getElementById("out-voxel-ua").value = `${xHex}:${yHex}:${zHex}:${ssiHex}`;
+      document.getElementById("out-signed-ua").value = `${activeAddressState.voxelX}:${activeAddressState.voxelY}:${activeAddressState.voxelZ}:${activeAddressState.solarSystemIndex}`;
+
+      const glyphInfo = universalAddressToGlyphs(hex14);
+      document.getElementById("glyph-font-element").textContent = glyphInfo.portalCode;
+      document.getElementById("glyph-hex-code").textContent = glyphInfo.portalCode;
+      document.getElementById("glyph-names-list").textContent = glyphInfo.glyphSequence.join(" • ");
+
+      const playerJson = {
+        "RealityIndex": activeAddressState.realityIndex,
+        "GalacticAddress": {
+          "VoxelX": activeAddressState.voxelX,
+          "VoxelY": activeAddressState.voxelY,
+          "VoxelZ": activeAddressState.voxelZ,
+          "SolarSystemIndex": activeAddressState.solarSystemIndex,
+          "PlanetIndex": activeAddressState.planetIndex
+        }
+      };
+
+      document.getElementById("player-json-output").textContent = JSON.stringify(playerJson, null, 2);
+
+      updateSSIBehavioralCard(activeAddressState.solarSystemIndex);
+      updateStatusBadge(activeAddressState.solarSystemIndex);
+    }
+
+    // Dynamic Evaluation of SSI Bands
+    function updateSSIBehavioralCard(ssi) {
+      const label = document.getElementById("ssi-spectrum-label");
+      const title = document.getElementById("behavior-band-title");
+      const hexSpan = document.getElementById("behavior-band-hex");
+      const stellar = document.getElementById("behavior-stellar-class");
+      const rules = document.getElementById("behavior-gen-rules");
+      const portal = document.getElementById("behavior-portal-exit");
+      const mapVis = document.getElementById("behavior-map-vis");
+
+      const ssiHexStr = `0x${ssi.toString(16).toUpperCase().padStart(4, '0')}`;
+      label.textContent = `Active SSI: ${ssiHexStr} (${ssi})`;
+
+      if (ssi === 0) {
+        title.textContent = "Zeroed Out / Core Origin";
+        title.className = "text-xs font-bold text-slate-400 uppercase";
+        hexSpan.textContent = "0x0000 (0 Dec)";
+        stellar.textContent = "Baseline System Boundary";
+        rules.textContent = "Zero-index position. Used as origin reference.";
+        portal.textContent = "Standard Portal Arrival";
+        portal.className = "text-emerald-400";
+        mapVis.textContent = "Standard Rendered Node";
+        mapVis.className = "text-slate-300";
+      }
+      else if (ssi >= 1 && ssi <= 120) { // 0x001 - 0x078
+        title.textContent = "Core System Band (Standard Stars)";
+        title.className = "text-xs font-bold text-yellow-400 uppercase";
+        hexSpan.textContent = "0x001 – 0x078 (1-120 Dec)";
+        stellar.textContent = "Yellow Stars & Primary Hubs";
+        rules.textContent = "Dense core. High density of 5-6 planet systems & populated stations. Low abandoned/uncharted rate.";
+        portal.textContent = "Valid Regional Destination";
+        portal.className = "text-emerald-400";
+        mapVis.textContent = "Standard Rendered Star Node";
+        mapVis.className = "text-cyan-300";
+      }
+      else if (ssi === 121) { // 0x0079
+        title.textContent = "Regional Black Hole Anchor";
+        title.className = "text-xs font-bold text-rose-400 uppercase";
+        hexSpan.textContent = "0x0079 (121 Dec)";
+        stellar.textContent = "Black Hole Stellar Node";
+        rules.textContent = "Hardcoded engine anchor: Reserves 0x0079 as primary Black Hole system for flagged regions.";
+        portal.textContent = "Direct Black Hole Arrival";
+        portal.className = "text-emerald-400";
+        mapVis.textContent = "Black Hole Icon & Rendered Node";
+        mapVis.className = "text-rose-400 font-bold";
+      }
+      else if (ssi === 122) { // 0x007A
+        title.textContent = "Regional Atlas Interface Anchor";
+        title.className = "text-xs font-bold text-cyan-400 uppercase";
+        hexSpan.textContent = "0x007A (122 Dec)";
+        stellar.textContent = "Atlas Station Node";
+        rules.textContent = "Hardcoded engine anchor: Every region's Atlas Interface resides here. Dialing 0x007A targets local Atlas Station.";
+        portal.textContent = "Direct Atlas Station System Arrival";
+        portal.className = "text-cyan-400";
+        mapVis.textContent = "Atlas Station Icon & Rendered Node";
+        mapVis.className = "text-cyan-300 font-bold";
+      }
+      else if (ssi >= 123 && ssi <= 290) { // 0x007B - 0x0122
+        title.textContent = "Expanded Mixed Spectral Band";
+        title.className = "text-xs font-bold text-amber-400 uppercase";
+        hexSpan.textContent = "0x007B – 0x0122 (123-290 Dec)";
+        stellar.textContent = "Expanded Yellow & Mixed Spectral Systems";
+        rules.textContent = "Standard main-sequence space with increasing probability of generating binary or ternary star arrangements.";
+        portal.textContent = "Valid System Arrival";
+        portal.className = "text-emerald-400";
+        mapVis.textContent = "Standard Rendered Star Node";
+        mapVis.className = "text-slate-300";
+      }
+      else if (ssi >= 291 && ssi <= 592) { // 0x0123 - 0x0250
+        title.textContent = "High-Index Spectral (Colored Stars)";
+        title.className = "text-xs font-bold text-emerald-400 uppercase";
+        hexSpan.textContent = "0x0123 – 0x0250 (291-592 Dec)";
+        stellar.textContent = "Cadmium (Red), Emeril (Green), Indium (Blue)";
+        rules.textContent = "Weighted toward upper half of region index. High frequency of uncharted, abandoned, and exotic biomes.";
+        portal.textContent = "Valid Colored System Arrival";
+        portal.className = "text-emerald-400";
+        mapVis.textContent = "Rendered Colored Star Node";
+        mapVis.className = "text-emerald-300";
+      }
+      else if (ssi >= 593 && ssi <= 600) { // 0x0251 - 0x0258
+        title.textContent = "Dense Threshold & Glass Star Candidates";
+        title.className = "text-xs font-bold text-sky-400 uppercase";
+        hexSpan.textContent = "0x0251 – 0x0258 (593-600 Dec)";
+        stellar.textContent = "Upper Star Generation Boundary";
+        rules.textContent = "In sparse regions (~300 stars), becomes Glass Systems. In ultra-dense regions (e.g., Baadossm Anomaly), renders as stars.";
+        portal.textContent = "Valid Arrival or Glass Transition";
+        portal.className = "text-sky-300";
+        mapVis.textContent = "Conditional Node Rendering";
+        mapVis.className = "text-sky-300";
+      }
+      else if (ssi >= 601 && ssi <= 999) { // 0x0259 - 0x03E7
+        title.textContent = "Universal Phantom Space Boundary";
+        title.className = "text-xs font-bold text-purple-400 uppercase";
+        hexSpan.textContent = "0x0259 – 0x03E7 (601-999 Dec)";
+        stellar.textContent = "Guaranteed Phantom Space";
+        rules.textContent = "Exceeds max system generation cap (600). Full biomes/flora/fauna exist via save-editing, but portal exits fail.";
+        portal.textContent = "BLOCKED: Triggers Atlas Error Redirection";
+        portal.className = "text-rose-400 font-bold";
+        mapVis.textContent = "HIDDEN: No Star Node on Galaxy Map";
+        mapVis.className = "text-purple-400 font-bold";
+      }
+      else if (ssi >= 1000 && ssi <= 1065) { // 0x03E8 - 0x0429
+        title.textContent = "Corrupted & Dissonant Allocations";
+        title.className = "text-xs font-bold text-fuchsia-400 uppercase";
+        hexSpan.textContent = "0x03E8 – 0x0429 (1000-1065 Dec)";
+        stellar.textContent = "Dissonant / Sentinel Corruption / Shadow Stars";
+        rules.textContent = "Referenced by Sentinel Corruption flags. 0x0429 is Hard Shadow system (visible on map, but portal forces redirection).";
+        portal.textContent = ssi === 1065 ? "FORCED ERROR: Redirects to 0x03E8" : "Dissonant / Conditional Arrival";
+        portal.className = "text-amber-400 font-bold";
+        mapVis.textContent = ssi === 1065 ? "VISIBLE: Hard Shadow System" : "Dissonant Node Variant";
+        mapVis.className = "text-fuchsia-300";
+      }
+      else if (ssi >= 1066 && ssi <= 4094) { // 0x042A - 0x0FFE
+        title.textContent = "High Phantom Space";
+        title.className = "text-xs font-bold text-indigo-400 uppercase";
+        hexSpan.textContent = "0x042A – 0x0FFE (1066-4094 Dec)";
+        stellar.textContent = "Deep Off-Grid Phantom Sector";
+        rules.textContent = "Stable for save-file location editing. Preserves standard planetary generation rules without breaking save files.";
+        portal.textContent = "BLOCKED: Error Redirection";
+        portal.className = "text-rose-400";
+        mapVis.textContent = "HIDDEN: Off-Grid";
+        mapVis.className = "text-indigo-300";
+      }
+      else if (ssi === 4095) { // 0x0FFF
+        title.textContent = "Reserved Overflow Boundary";
+        title.className = "text-xs font-bold text-red-500 uppercase animate-pulse";
+        hexSpan.textContent = "0x0FFF (4095 Dec)";
+        stellar.textContent = "CRITICAL: Math Boundary Overflow";
+        rules.textContent = "Reserved for coordinate math. Forcing 0x0FFF causes wraparound to 0x000, map camera glitches, or save deadlocks.";
+        portal.textContent = "DO NOT DIAL: Math Boundary";
+        portal.className = "text-red-500 font-bold";
+        mapVis.textContent = "ERRATIC: Camera Wrap / Lockup Risk";
+        mapVis.className = "text-red-500 font-bold";
+      }
+    }
+
+    function applyManualEdits() {
+      activeAddressState = {
+        planetIndex: parseInt(document.getElementById("edit-planet").value) || 0,
+        solarSystemIndex: parseInt(document.getElementById("edit-ssi").value) || 0,
+        voxelX: parseInt(document.getElementById("edit-vx").value) || 0,
+        voxelY: parseInt(document.getElementById("edit-vy").value) || 0,
+        voxelZ: parseInt(document.getElementById("edit-vz").value) || 0,
+        realityIndex: parseInt(document.getElementById("edit-galaxy").value) || 0
+      };
+
+      renderStateToInterface();
+      showToast("Modifications applied successfully!");
+    }
+
+    function setSSIPreset(ssiVal) {
+      activeAddressState.solarSystemIndex = ssiVal;
+      renderStateToInterface();
+      showToast(`SSI set to ${ssiVal} (0x${ssiVal.toString(16).toUpperCase()})`);
+    }
+
+    function setRandomPhantomSSI() {
+      const min = 601;
+      const max = 4000;
+      const randDecimal = Math.floor(Math.random() * (max - min + 1)) + min;
+      setSSIPreset(randDecimal);
+    }
+
+    function reversePlayerJsonToUA(format) {
+      try {
+        const jsonText = document.getElementById("player-json-output").textContent;
+        const jsonObj = JSON.parse(jsonText);
+
+        const stateFromJSON = {
+          planetIndex: jsonObj.GalacticAddress.PlanetIndex,
+          solarSystemIndex: jsonObj.GalacticAddress.SolarSystemIndex,
+          realityIndex: jsonObj.RealityIndex,
+          voxelX: jsonObj.GalacticAddress.VoxelX,
+          voxelY: jsonObj.GalacticAddress.VoxelY,
+          voxelZ: jsonObj.GalacticAddress.VoxelZ
+        };
+
+        if (format === 'hex') {
+          const hex = encodeToUniversalHex(stateFromJSON);
+          copyToClipboardText(`0x${hex}`, "UA Hex from JSON");
+        } else {
+          const dec = encodeToUniversalDec(stateFromJSON);
+          copyToClipboardText(dec, "UA Dec from JSON");
+        }
+      } catch (err) {
+        showToast("Error reversing JSON to UA");
+      }
+    }
+
+    function updateStatusBadge(ssi) {
+      const badge = document.getElementById("system-status-badge");
+      const dot = document.getElementById("system-status-dot");
+      const text = document.getElementById("system-status-text");
+
+      if (ssi === 1000) {
+        badge.className = "px-5 py-2.5 rounded-xl text-sm font-bold tracking-wider uppercase flex items-center gap-2 border border-glow-amber bg-amber-950/60 text-amber-300 border-amber-500 shadow-lg";
+        dot.className = "w-2.5 h-2.5 rounded-full bg-amber-400";
+        text.textContent = `Dissonant System (SSI: 1000 / 0x03E8)`;
+      } else if (ssi === 121) {
+        badge.className = "px-5 py-2.5 rounded-xl text-sm font-bold tracking-wider uppercase flex items-center gap-2 border border-zinc-500/60 bg-zinc-950/80 text-zinc-300 shadow-lg";
+        dot.className = "w-2.5 h-2.5 rounded-full bg-rose-500";
+        text.textContent = `Black Hole System (SSI: 121 / 0x0079)`;
+      } else if (ssi >= 601 && ssi <= 999) {
+        badge.className = "px-5 py-2.5 rounded-xl text-sm font-bold tracking-wider uppercase flex items-center gap-2 border border-glow-purple bg-purple-950/60 text-purple-300 border-purple-500 shadow-lg animate-pulse";
+        dot.className = "w-2.5 h-2.5 rounded-full bg-purple-400";
+        text.textContent = `Phantom Space (SSI: ${ssi} / 0x${ssi.toString(16).toUpperCase()})`;
+      } else if (ssi === 1065) {
+        badge.className = "px-5 py-2.5 rounded-xl text-sm font-bold tracking-wider uppercase flex items-center gap-2 border border-glow-purple bg-fuchsia-950/60 text-fuchsia-300 border-fuchsia-500 shadow-lg";
+        dot.className = "w-2.5 h-2.5 rounded-full bg-fuchsia-400";
+        text.textContent = `Hard Shadow System (SSI: 0x0429)`;
+      } else if (ssi === 122) {
+        badge.className = "px-5 py-2.5 rounded-xl text-sm font-bold tracking-wider uppercase flex items-center gap-2 border border-cyan-500/60 bg-cyan-950/60 text-cyan-300 shadow-lg";
+        dot.className = "w-2.5 h-2.5 rounded-full bg-cyan-400";
+        text.textContent = `Atlas Interface Node (SSI: 0x007A)`;
+      } else if (ssi === 4095) {
+        badge.className = "px-5 py-2.5 rounded-xl text-sm font-bold tracking-wider uppercase flex items-center gap-2 border border-red-600 bg-red-950/80 text-red-300 shadow-lg animate-pulse";
+        dot.className = "w-2.5 h-2.5 rounded-full bg-red-500";
+        text.textContent = `Overflow Boundary (SSI: 0x0FFF)`;
+      } else {
+        badge.className = "px-5 py-2.5 rounded-xl text-sm font-bold tracking-wider uppercase flex items-center gap-2 border border-slate-700 bg-slate-800 text-slate-300 shadow-md";
+        dot.className = "w-2.5 h-2.5 rounded-full bg-cyan-400";
+        text.textContent = `Standard System (SSI: ${ssi})`;
+      }
+    }
+
+    function copyToClipboard(elementId) {
+      const el = document.getElementById(elementId);
+      copyToClipboardText(el.value || el.textContent, "Value");
+    }
+
+    function copyToClipboardText(text, label) {
+      navigator.clipboard.writeText(text).then(() => {
+        showToast(`Copied ${label}!`);
+      }).catch(() => {
+        const el = document.createElement('textarea');
+        el.value = text;
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+        showToast(`Copied ${label}!`);
+      });
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById("toast");
+      const toastMsg = document.getElementById("toast-message");
+      toastMsg.textContent = msg;
+      toast.classList.remove("opacity-0", "pointer-events-none");
+      toast.classList.add("opacity-100");
+
+      setTimeout(() => {
+        toast.classList.remove("opacity-100");
+        toast.classList.add("opacity-0", "pointer-events-none");
+      }, 2500);
+    }
+  </script>
+</body>
+</html>
