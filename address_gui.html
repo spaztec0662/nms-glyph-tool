@@ -246,8 +246,8 @@
                   <button onclick="setSSIPreset(300)" class="p-1.5 bg-slate-900 hover:bg-slate-800 border border-emerald-500/40 rounded-lg text-xs font-mono text-emerald-300 text-center">
                     0x012C<br><span class="text-[9px] text-emerald-400">RGB Spectral</span>
                   </button>
-                  <button onclick="setSSIPreset(593)" class="p-1.5 bg-slate-900 hover:bg-slate-800 border border-sky-500/50 rounded-lg text-xs font-mono text-sky-300 text-center">
-                    0x0251<br><span class="text-[9px] text-sky-400">Glass Candidate</span>
+                  <button onclick="setSSIPreset(1000)" class="p-1.5 bg-slate-900 hover:bg-slate-800 border border-sky-500/50 rounded-lg text-xs font-mono text-sky-300 text-center">
+                    0x03E8<br><span class="text-[9px] text-sky-400">Glass Candidate</span>
                   </button>
                   <button onclick="setSSIPreset(1000)" class="p-1.5 bg-slate-900 hover:bg-slate-800 border border-fuchsia-500/50 rounded-lg text-xs font-mono text-fuchsia-300 text-center">
                     0x03E8<br><span class="text-[9px] text-fuchsia-400">Dissonant Core</span>
@@ -905,6 +905,10 @@
         badge.className = "px-5 py-2.5 rounded-xl text-sm font-bold tracking-wider uppercase flex items-center gap-2 border border-cyan-500/60 bg-cyan-950/60 text-cyan-300 shadow-lg";
         dot.className = "w-2.5 h-2.5 rounded-full bg-cyan-400";
         text.textContent = `Atlas Interface Node (SSI: 0x007A)`;
+      } else if (ssi >= 1066 && ssi <= 4094) {
+        badge.className = "px-5 py-2.5 rounded-xl text-sm font-bold tracking-wider uppercase flex items-center gap-2 border border-glow-purple bg-purple-950/60 text-purple-300 border-purple-500 shadow-lg animate-pulse";
+        dot.className = "w-2.5 h-2.5 rounded-full bg-purple-400";
+        text.textContent = `High Phantom Space (SSI: ${ssi} / 0x${ssi.toString(16).toUpperCase()})`;
       } else if (ssi === 4095) {
         badge.className = "px-5 py-2.5 rounded-xl text-sm font-bold tracking-wider uppercase flex items-center gap-2 border border-red-600 bg-red-950/80 text-red-300 shadow-lg animate-pulse";
         dot.className = "w-2.5 h-2.5 rounded-full bg-red-500";
