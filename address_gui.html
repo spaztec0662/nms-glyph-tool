@@ -604,8 +604,8 @@
     document.addEventListener("DOMContentLoaded", () => {
       populateGalaxyDropdown();
       initThreeJSGalaxy();
-      document.getElementById("master-address-input").value = "000000000000000";
-      processMasterInput();
+      document.getElementById("master-address-input").value = "";
+      //processMasterInput();
     });
 
     function populateGalaxyDropdown() {
@@ -987,7 +987,7 @@
         mapVis.textContent = "Rendered Colored Star Node";
         mapVis.className = "text-emerald-300";
       }
-      else if (ssi >= 593 && ssi <= 600) {
+      else if (ssi >= 593 && ssi <= 600 || ssi == 1000) {
         title.textContent = "Dense Threshold & Glass Star Candidates";
         title.className = "text-xs font-bold text-sky-400 uppercase";
         hexSpan.textContent = "0x0251 – 0x0258 (593-600 Dec)";
@@ -1009,7 +1009,7 @@
         mapVis.textContent = "HIDDEN: No Star Node on Galaxy Map";
         mapVis.className = "text-purple-400 font-bold";
       }
-      else if (ssi >= 1000 && ssi <= 1065) {
+      else if (ssi >= 1001 && ssi <= 1065) {
         title.textContent = "Corrupted & Dissonant Allocations";
         title.className = "text-xs font-bold text-fuchsia-400 uppercase";
         hexSpan.textContent = "0x03E8 – 0x0429 (1000-1065 Dec)";
@@ -1112,7 +1112,7 @@
         badge.className = "px-5 py-2.5 rounded-xl text-sm font-bold tracking-wider uppercase flex items-center gap-2 border border-glow-purple bg-fuchsia-950/60 text-fuchsia-300 border-fuchsia-500 shadow-lg";
         dot.className = "w-2.5 h-2.5 rounded-full bg-fuchsia-400";
         text.textContent = `Hard Shadow System (SSI: 0x0429)`;
-      } else if (ssi >= 1000 && ssi < 1065) {
+      } else if (ssi >= 1001 && ssi < 1065) {
         badge.className = "px-5 py-2.5 rounded-xl text-sm font-bold tracking-wider uppercase flex items-center gap-2 border border-glow-amber bg-amber-950/60 text-amber-300 border-amber-500 shadow-lg";
         dot.className = "w-2.5 h-2.5 rounded-full bg-fuchsia-400 animate-pulse";
         text.textContent = `Dissonant / Corrupted System (SSI: ${ssi} / 0x${ssi.toString(16).toUpperCase()})`;
@@ -1128,6 +1128,10 @@
         badge.className = "px-5 py-2.5 rounded-xl text-sm font-bold tracking-wider uppercase flex items-center gap-2 border border-red-600 bg-red-950/80 text-red-300 shadow-lg animate-pulse";
         dot.className = "w-2.5 h-2.5 rounded-full bg-red-500";
         text.textContent = `Overflow Boundary (SSI: 0x0FFF)`;
+      }  else if (ssi >= 593 && ssi <= 600 || ssi === 1000) {
+        badge.className = "px-5 py-2.5 rounded-xl text-sm font-bold tracking-wider uppercase flex items-center gap-2 border border-red-600 bg-yellow-950/80 text-yellow-300 shadow-lg animate-pulse";
+        dot.className = "w-2.5 h-2.5 rounded-full bg-red-500";
+        text.textContent = `Glass System (SSI: ${ssi} / 0x${ssi.toString(16).toUpperCase()})`;
       } else {
         badge.className = "px-5 py-2.5 rounded-xl text-sm font-bold tracking-wider uppercase flex items-center gap-2 border border-slate-700 bg-slate-800 text-slate-300 shadow-md";
         dot.className = "w-2.5 h-2.5 rounded-full bg-cyan-400";
