@@ -229,9 +229,24 @@
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
             <div>
               <label class="block text-[11px] text-slate-400 mb-1">Galaxy (Reality Index)</label>
-              <select id="edit-galaxy" class="w-full bg-slate-950 border border-slate-700 text-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-cyan-500">
-                <!-- Populated by JS -->
-              </select>
+
+              <!-- Custom Searchable Galaxy Dropdown -->
+              <div class="relative" id="galaxy-dropdown-container">
+                <button type="button" id="galaxy-select-btn" onclick="toggleGalaxyDropdown()"
+                        class="w-full bg-slate-950 border border-slate-700 text-slate-200 rounded-xl px-3 py-2 text-sm text-left flex justify-between items-center focus:outline-none focus:border-cyan-500">
+                  <span id="galaxy-select-label">0: Euclid</span>
+                  <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+
+                <div id="galaxy-dropdown-menu" class="hidden absolute left-0 right-0 top-full mt-1 bg-slate-950 border border-slate-700 rounded-xl shadow-2xl z-50 p-2 space-y-2 max-h-64 flex flex-col">
+                  <input type="text" id="galaxy-search-input" oninput="filterGalaxyList()" placeholder="🔍 Search galaxy name or ID..."
+                         class="w-full bg-slate-900 border border-slate-800 text-slate-200 text-xs rounded-lg p-2 focus:outline-none focus:border-cyan-500">
+                  <div id="galaxy-options-list" class="overflow-y-auto flex-1 space-y-0.5 text-xs">
+                    <!-- Populated by JS -->
+                  </div>
+                </div>
+              </div>
+
             </div>
             <div class="flex items-end">
               <button onclick="applyManualEdits()" class="w-full py-2 bg-amber-600/80 hover:bg-amber-500 text-white font-bold rounded-xl text-sm transition-all border border-amber-500">
@@ -368,14 +383,43 @@
         <!-- Rendered Portal Glyphs Display & Live Dynamic Behavioral Card -->
         <div class="bg-slate-900/80 p-6 rounded-2xl border border-slate-800 flex flex-col justify-between space-y-4">
           <div>
-            <h2 class="text-lg font-bold tracking-wide text-sky-400 uppercase flex items-center gap-2 mb-2">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-              Portal Glyph Sequence
-            </h2>
+            <div class="flex justify-between items-center mb-2">
+              <h2 class="text-lg font-bold tracking-wide text-sky-400 uppercase flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                Portal Glyphs
+              </h2>
+              <button onclick="toggleSavedPanel()" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-cyan-300 text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
+                Saved (<span id="saved-count-badge">0</span>)
+              </button>
+            </div>
 
             <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-center space-y-3">
               <div id="glyph-font-element" class="glyph-display">407B1E064095</div>
               <div id="glyph-hex-code" class="text-xs font-mono text-cyan-300 font-bold">407B1E064095</div>
+            </div>
+
+            <!-- Save Address Inline Widget -->
+            <div class="mt-3 p-3 bg-slate-950 rounded-xl border border-slate-800 space-y-2">
+              <span class="block text-[11px] font-bold text-amber-400 uppercase">Save Current Location</span>
+              <div class="flex gap-2">
+                <input type="text" id="save-address-name" placeholder="Address Name (Optional)"
+                       class="bg-slate-900 border border-slate-700 text-slate-100 rounded-lg px-3 py-1.5 text-xs font-mono flex-1 focus:outline-none focus:border-cyan-500">
+                <button onclick="saveCurrentAddress()" class="px-4 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold rounded-lg text-xs transition-all shadow">
+                  Save
+                </button>
+              </div>
+            </div>
+
+            <!-- Unobtrusive Scrollable Saved Addresses Panel (Hidden by Default) -->
+            <div id="saved-addresses-panel" class="hidden mt-3 p-3 bg-slate-950 rounded-xl border border-cyan-500/40 space-y-2 max-h-48 overflow-y-auto">
+              <div class="flex justify-between items-center border-b border-slate-800 pb-1">
+                <span class="text-xs font-bold text-cyan-400 uppercase">Stored Locations</span>
+                <span class="text-[10px] text-slate-500">Saved in browser</span>
+              </div>
+              <div id="saved-list-container" class="space-y-1.5">
+                <!-- Dynamically Populated -->
+              </div>
             </div>
 
             <!-- Dynamic Stellar Behavioral Card -->
@@ -489,7 +533,7 @@
     </footer>
   </div>
 
-  <div id="toast" class="fixed bottom-5 right-5 bg-cyan-600 text-white font-semibold text-sm px-4 py-2.5 rounded-xl shadow-2xl opacity-0 transition-opacity duration-300 pointer-events-none flex items-center gap-2">
+  <div id="toast" class="fixed bottom-5 right-5 bg-cyan-600 text-white font-semibold text-sm px-4 py-2.5 rounded-xl shadow-2xl opacity-0 transition-opacity duration-300 pointer-events-none flex items-center gap-2 z-50">
     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
     <span id="toast-message">Copied to clipboard!</span>
   </div>
@@ -602,22 +646,226 @@
 
     // App Initialization
     document.addEventListener("DOMContentLoaded", () => {
-      populateGalaxyDropdown();
+      populateGalaxyDropdownOptions();
       initThreeJSGalaxy();
-      document.getElementById("master-address-input").value = "";
-      //processMasterInput();
+      renderSavedAddressesList();
+
+      // Close galaxy dropdown if clicked outside
+      document.addEventListener("click", (e) => {
+        const container = document.getElementById("galaxy-dropdown-container");
+        if (container && !container.contains(e.target)) {
+          document.getElementById("galaxy-dropdown-menu").classList.add("hidden");
+        }
+      });
+
+      // Check URL for UA Parameter
+      const urlParams = new URLSearchParams(window.location.search);
+      const uaParam = urlParams.get('ua');
+
+      if (uaParam && /^\d+$/.test(uaParam)) {
+        try {
+          const hex14 = decodeDecimalGalacticAddress(uaParam);
+          const decoded = decodeUniversalAddress(hex14);
+          activeAddressState = {
+            planetIndex: decoded.planetIndex,
+            solarSystemIndex: decoded.solarSystemIndex,
+            realityIndex: decoded.realityIndex,
+            voxelX: decoded.signedVoxels.x,
+            voxelY: decoded.signedVoxels.y,
+            voxelZ: decoded.signedVoxels.z
+          };
+          showToast("Address loaded from URL!");
+        } catch (err) {
+          console.error("Failed to parse UA from URL", err);
+        }
+      }
+
+      renderStateToInterface();
     });
 
-    function populateGalaxyDropdown() {
-      const select = document.getElementById("edit-galaxy");
-      select.innerHTML = "";
+    // Searchable Galaxy Dropdown Logic
+    function populateGalaxyDropdownOptions() {
+      const optionsList = document.getElementById("galaxy-options-list");
+      optionsList.innerHTML = "";
+
       for (let i = 0; i < 256; i++) {
         const name = GALAXY_NAMES[i] ? `${i}: ${GALAXY_NAMES[i]}` : `${i}: Galaxy ${i + 1}`;
-        const option = document.createElement("option");
-        option.value = i;
-        option.textContent = name;
-        select.appendChild(option);
+        const item = document.createElement("div");
+        item.className = "px-3 py-1.5 hover:bg-slate-800 rounded cursor-pointer transition-colors flex justify-between items-center";
+        item.setAttribute("data-galaxy-index", i);
+        item.setAttribute("data-galaxy-text", name.toLowerCase());
+        item.onclick = () => selectGalaxy(i);
+
+        item.innerHTML = `
+          <span>${name}</span>
+          <span class="text-[10px] text-slate-500 font-mono">0x${i.toString(16).toUpperCase().padStart(2, '0')}</span>
+        `;
+        optionsList.appendChild(item);
       }
+    }
+
+    function toggleGalaxyDropdown() {
+      const menu = document.getElementById("galaxy-dropdown-menu");
+      const isHidden = menu.classList.contains("hidden");
+      if (isHidden) {
+        menu.classList.remove("hidden");
+        const searchInput = document.getElementById("galaxy-search-input");
+        searchInput.value = "";
+        filterGalaxyList();
+        searchInput.focus();
+      } else {
+        menu.classList.add("hidden");
+      }
+    }
+
+    function filterGalaxyList() {
+      const query = document.getElementById("galaxy-search-input").value.toLowerCase().trim();
+      const items = document.querySelectorAll("#galaxy-options-list > div");
+
+      items.forEach(item => {
+        const text = item.getAttribute("data-galaxy-text");
+        if (!query || text.includes(query)) {
+          item.classList.remove("hidden");
+        } else {
+          item.classList.add("hidden");
+        }
+      });
+    }
+
+    function selectGalaxy(index) {
+      activeAddressState.realityIndex = index;
+      document.getElementById("galaxy-dropdown-menu").classList.add("hidden");
+      renderStateToInterface();
+    }
+
+    function updateGalaxySelectLabel(index) {
+      const label = document.getElementById("galaxy-select-label");
+      if (label) {
+        const name = GALAXY_NAMES[index] ? `${index}: ${GALAXY_NAMES[index]}` : `${index}: Galaxy ${index + 1}`;
+        label.textContent = name;
+      }
+    }
+
+    // --- SAVED ADDRESSES LOCAL STORAGE ENGINE ---
+    function getSavedAddresses() {
+      try {
+        return JSON.parse(localStorage.getItem("nms_saved_addresses") || "[]");
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function saveCurrentAddress() {
+      const decUA = encodeToUniversalDec(activeAddressState);
+      const nameInput = document.getElementById("save-address-name");
+      let name = nameInput.value.trim();
+
+      const hex14 = encodeToUniversalHex(activeAddressState);
+      const glyphInfo = universalAddressToGlyphs(hex14);
+      const galName = GALAXY_NAMES[activeAddressState.realityIndex] || `Galaxy ${activeAddressState.realityIndex + 1}`;
+
+      if (!name) {
+        name = `${galName} - ${glyphInfo.portalCode}`;
+      }
+
+      const list = getSavedAddresses();
+      // Add or update
+      const existingIdx = list.findIndex(item => item.ua === decUA);
+      if (existingIdx >= 0) {
+        list[existingIdx].name = name;
+      } else {
+        list.unshift({ ua: decUA, name: name, timestamp: Date.now() });
+      }
+
+      localStorage.setItem("nms_saved_addresses", JSON.stringify(list));
+      nameInput.value = "";
+      renderSavedAddressesList();
+      showToast("Address saved successfully!");
+    }
+
+    function deleteSavedAddress(ua) {
+      let list = getSavedAddresses();
+      list = list.filter(item => item.ua !== ua);
+      localStorage.setItem("nms_saved_addresses", JSON.stringify(list));
+      renderSavedAddressesList();
+      showToast("Saved address removed.");
+    }
+
+    function updateSavedAddressName(ua, newName) {
+      const list = getSavedAddresses();
+      const item = list.find(i => i.ua === ua);
+      if (item) {
+        item.name = newName.trim() || item.name;
+        localStorage.setItem("nms_saved_addresses", JSON.stringify(list));
+        renderSavedAddressesList();
+      }
+    }
+
+    function loadSavedAddress(ua) {
+      try {
+        const hex14 = decodeDecimalGalacticAddress(ua);
+        const decoded = decodeUniversalAddress(hex14);
+
+        activeAddressState = {
+          planetIndex: decoded.planetIndex,
+          solarSystemIndex: decoded.solarSystemIndex,
+          realityIndex: decoded.realityIndex,
+          voxelX: decoded.signedVoxels.x,
+          voxelY: decoded.signedVoxels.y,
+          voxelZ: decoded.signedVoxels.z
+        };
+
+        renderStateToInterface();
+        showToast("Saved address loaded!");
+      } catch (err) {
+        showToast("Error loading saved address.");
+      }
+    }
+
+    function toggleSavedPanel() {
+      const panel = document.getElementById("saved-addresses-panel");
+      panel.classList.toggle("hidden");
+    }
+
+    function renderSavedAddressesList() {
+      const list = getSavedAddresses();
+      const container = document.getElementById("saved-list-container");
+      const badge = document.getElementById("saved-count-badge");
+
+      badge.textContent = list.length;
+      container.innerHTML = "";
+
+      if (list.length === 0) {
+        container.innerHTML = `<div class="text-[11px] text-slate-500 italic p-2 text-center">No saved addresses yet.</div>`;
+        return;
+      }
+
+      list.forEach(item => {
+        const hex14 = decodeDecimalGalacticAddress(item.ua);
+        const portalCode = universalAddressToGlyphs(hex14).portalCode;
+
+        const row = document.createElement("div");
+        row.className = "flex items-center justify-between gap-2 p-2 bg-slate-900/90 hover:bg-slate-800/90 rounded-lg border border-slate-800 transition-colors group";
+
+        row.innerHTML = `
+          <div class="flex-1 min-w-0 cursor-pointer" onclick="loadSavedAddress('${item.ua}')">
+            <input type="text" value="${item.name.replace(/"/g, '&quot;')}"
+                   onclick="event.stopPropagation()"
+                   onchange="updateSavedAddressName('${item.ua}', this.value)"
+                   class="bg-transparent border-b border-transparent hover:border-slate-600 focus:border-cyan-500 text-xs text-slate-200 font-semibold w-full focus:outline-none truncate">
+            <div class="text-[10px] font-mono text-cyan-400 flex items-center gap-2">
+              <span class="tracking-widest" style="font-family: 'NMSGlyphs', monospace;">${portalCode}</span>
+              <span class="text-slate-500">• ${item.ua}</span>
+            </div>
+          </div>
+          <button onclick="deleteSavedAddress('${item.ua}')" title="Delete Saved Address"
+                  class="p-1 text-slate-500 hover:text-rose-400 opacity-60 group-hover:opacity-100 transition-opacity">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+          </button>
+        `;
+
+        container.appendChild(row);
+      });
     }
 
     // --- THREE.JS GALAXY ENGINE ---
@@ -833,17 +1081,24 @@
       }
     }
 
-    // Sync State to Form Controls, Dynamic Behavioral Card, Scrub Track Line, & Outputs
+    // Sync State to Form Controls, Dynamic Behavioral Card, Scrub Track Line, Outputs & URL
     function renderStateToInterface() {
       document.getElementById("edit-planet").value = activeAddressState.planetIndex;
       document.getElementById("edit-ssi").value = activeAddressState.solarSystemIndex;
       document.getElementById("edit-vx").value = activeAddressState.voxelX;
       document.getElementById("edit-vy").value = activeAddressState.voxelY;
       document.getElementById("edit-vz").value = activeAddressState.voxelZ;
-      document.getElementById("edit-galaxy").value = activeAddressState.realityIndex;
+      updateGalaxySelectLabel(activeAddressState.realityIndex);
 
       const hex14 = encodeToUniversalHex(activeAddressState);
       const decUA = encodeToUniversalDec(activeAddressState);
+
+      // Sync URL Parameter without page reload
+      if (window.history.replaceState) {
+        const newUrl = new URL(window.location.href);
+        newUrl.searchParams.set('ua', decUA);
+        window.history.replaceState({ path: newUrl.href }, '', newUrl.href);
+      }
 
       document.getElementById("out-dec-ua").value = decUA;
       document.getElementById("out-hex-ua").value = `0x${hex14}`;
@@ -1051,7 +1306,7 @@
         voxelX: parseInt(document.getElementById("edit-vx").value) || 0,
         voxelY: parseInt(document.getElementById("edit-vy").value) || 0,
         voxelZ: parseInt(document.getElementById("edit-vz").value) || 0,
-        realityIndex: parseInt(document.getElementById("edit-galaxy").value) || 0
+        realityIndex: activeAddressState.realityIndex || 0
       };
 
       renderStateToInterface();
