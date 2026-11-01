@@ -988,7 +988,7 @@
       inputEl.focus();
     }
 
-    // Master Input Parser & Router
+    // Master Input Parser & Router (FIXED)
     function processMasterInput() {
       const rawInput = document.getElementById("master-address-input").value.trim();
       const validationEl = document.getElementById("input-validation-msg");
@@ -1002,14 +1002,45 @@
       try {
         let hex14 = "";
 
-        if (/^\d{12,18}$/.test(rawInput)) {
+        // FIXED ROUTING 1: 12-Hex Glyphs checked FIRST before purely numeric BigInts
+        if (/^[0-9a-fA-F]{12}$/.test(rawInput)) {
+          const glyphsHex = rawInput.toUpperCase();
+          const planet = parseInt(glyphsHex[0], 16);
+          const ssi = parseInt(glyphsHex.substring(1, 4), 16);
+          const rawY = parseInt(glyphsHex.substring(4, 6), 16);
+          const rawZ = parseInt(glyphsHex.substring(6, 9), 16);
+          const rawX = parseInt(glyphsHex.substring(9, 12), 16);
+
+          // FIXED VOXEL OFFSET MATH: Apply baseline offsets (0x800 for X/Z, 0x80 for Y)
+          const voxelX = rawX >= 0x800 ? rawX - 0x1000 : rawX;
+          const voxelY = rawY >= 0x80 ? rawY - 0x100 : rawY;
+          const voxelZ = rawZ >= 0x800 ? rawZ - 0x1000 : rawZ;
+
+          activeAddressState = {
+            planetIndex: planet,
+            solarSystemIndex: ssi,
+            realityIndex: activeAddressState.realityIndex || 0,
+            voxelX: voxelX,
+            voxelY: voxelY,
+            voxelZ: voxelZ
+          };
+
+          validationEl.textContent = `Parsed Format: 12-Hex Glyph Sequence (${glyphsHex})`;
+          validationEl.className = "text-xs text-emerald-400 font-mono";
+          renderStateToInterface();
+          return;
+        }
+        // 2: Decimal Universal Address BigInt
+        else if (/^\d{13,18}$/.test(rawInput)) {
           hex14 = decodeDecimalGalacticAddress(rawInput);
           validationEl.textContent = `Parsed Format: Decimal Universal Address BigInt -> Hex: 0x${hex14}`;
         }
+        // 3: 14-Character Hex Universal Address
         else if (/^(0x)?[0-9a-fA-F]{14}$/.test(rawInput)) {
           hex14 = rawInput.startsWith('0x') ? rawInput.slice(2).toUpperCase() : rawInput.toUpperCase();
           validationEl.textContent = `Parsed Format: 14-Hex Universal Address -> 0x${hex14}`;
         }
+        // 4: Formatted Voxel Coordinates (XXXX:YYYY:ZZZZ:SSI)
         else if (rawInput.includes(':') && rawInput.split(':').length === 4) {
           const parts = rawInput.split(':');
           const [xHex, yHex, zHex, ssiHex] = parts;
@@ -1029,32 +1060,7 @@
           };
 
           validationEl.textContent = `Parsed Format: Formatted Voxel Coordinates (XXXX:YYYY:ZZZZ:SSI)`;
-          renderStateToInterface();
-          return;
-        }
-        else if (/^[0-9a-fA-F]{12}$/.test(rawInput)) {
-          const glyphsHex = rawInput.toUpperCase();
-          const planet = parseInt(glyphsHex[0], 16);
-          const ssi = parseInt(glyphsHex.substring(1, 4), 16);
-          const rawY = parseInt(glyphsHex.substring(4, 6), 16);
-          const rawZ = parseInt(glyphsHex.substring(6, 9), 16);
-          const rawX = parseInt(glyphsHex.substring(9, 12), 16);
-
-          const parseSigned = (val, bits) => {
-            const max = 1 << bits;
-            return val >= (max >> 1) ? val - max : val;
-          };
-
-          activeAddressState = {
-            planetIndex: planet,
-            solarSystemIndex: ssi,
-            realityIndex: activeAddressState.realityIndex || 0,
-            voxelX: parseSigned(rawX, 12),
-            voxelY: parseSigned(rawY, 8),
-            voxelZ: parseSigned(rawZ, 12)
-          };
-
-          validationEl.textContent = `Parsed Format: 12-Hex Glyph Sequence`;
+          validationEl.className = "text-xs text-emerald-400 font-mono";
           renderStateToInterface();
           return;
         }
