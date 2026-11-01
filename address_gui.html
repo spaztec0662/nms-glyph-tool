@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>NMS Universal Address & Portal Glyphs Terminal</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Three.js CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <style>
     @font-face {
       font-family: 'NMSGlyphs';
@@ -50,6 +52,15 @@
       border: 1px solid rgba(168, 85, 247, 0.4);
     }
 
+    /* Vertical Range Slider Styling */
+    input[type=range].vertical-slider {
+      writing-mode: bt-lr; /* IE/Edge */
+      -webkit-appearance: slider-vertical; /* WebKit */
+      width: 16px;
+      height: 100%;
+      accent-color: #10b981;
+    }
+
     ::-webkit-scrollbar {
       width: 6px;
       height: 6px;
@@ -80,7 +91,7 @@
           </h1>
         </div>
         <p class="text-xs md:text-sm text-slate-400 mt-1">
-          Universal Address Decoding, Portal Glyphs Conversion, Voxel Calculations & Save JSON Refactoring.
+          Universal Address Decoding, Portal Glyphs Conversion, Voxel Calculations & 3D Interactive Positioning.
         </p>
       </div>
 
@@ -92,53 +103,94 @@
 
     <main class="space-y-6">
 
-      <!-- Universal Input Box with Validation and Glyph Input Pad -->
-      <section class="bg-slate-900/80 p-6 rounded-2xl border border-slate-800 space-y-4">
-        <h2 class="text-lg font-bold tracking-wide text-cyan-400 uppercase flex items-center gap-2">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-          Universal Address Input Terminal
-        </h2>
+      <!-- Universal Input Box with 3D Galaxy Viewport -->
+      <section class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-        <div class="flex flex-col sm:flex-row gap-3">
-          <input type="text" id="master-address-input" placeholder="Paste Decimal UA, 14-Hex UA, Galactic Address, or 12-Hex Glyphs"
-                 class="bg-slate-950 border border-slate-700 text-slate-100 rounded-xl px-4 py-3 text-sm font-mono flex-1 focus:outline-none focus:border-cyan-500 uppercase">
-          <button onclick="processMasterInput()" class="px-6 py-3 bg-gradient-to-r from-cyan-600 to-sky-600 hover:from-cyan-500 hover:to-sky-500 text-white font-bold rounded-xl text-sm transition-all shadow-md">
-            Parse & Load
-          </button>
-        </div>
+        <!-- Input & Glyph Terminal (Cols 1-7) -->
+        <div class="lg:col-span-7 bg-slate-900/80 p-6 rounded-2xl border border-slate-800 space-y-4 flex flex-col justify-between">
+          <div>
+            <h2 class="text-lg font-bold tracking-wide text-cyan-400 uppercase flex items-center gap-2 mb-3">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+              Universal Address Input Terminal
+            </h2>
 
-        <div id="input-validation-msg" class="text-xs text-slate-400 font-mono">
-          Supported Formats: Decimal UA, 14-char Hex UA, Formatted Hex UA (XXXX:YYYY:ZZZZ:SSI), Decimal UA (X:Y:Z:SSI), 12-Hex Glyphs.
-        </div>
+            <div class="flex flex-col sm:flex-row gap-3">
+              <input type="text" id="master-address-input" placeholder="Paste Decimal UA, 14-Hex UA, Galactic Address, or 12-Hex Glyphs"
+                     class="bg-slate-950 border border-slate-700 text-slate-100 rounded-xl px-4 py-3 text-sm font-mono flex-1 focus:outline-none focus:border-cyan-500 uppercase">
+              <button onclick="processMasterInput()" class="px-6 py-3 bg-gradient-to-r from-cyan-600 to-sky-600 hover:from-cyan-500 hover:to-sky-500 text-white font-bold rounded-xl text-sm transition-all shadow-md">
+                Parse & Load
+              </button>
+            </div>
 
-        <!-- Glyph Input Pad -->
-        <div class="pt-3 border-t border-slate-800 space-y-2">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-bold text-cyan-400 uppercase tracking-wider">Glyph Input Pad</span>
-            <button type="button" onclick="clearMasterInput()" class="px-3 py-1 bg-rose-950/80 hover:bg-rose-900 border border-rose-800 text-rose-300 font-mono text-xs rounded-lg transition-colors">
-              Clear Input
-            </button>
+            <div id="input-validation-msg" class="text-xs text-slate-400 font-mono mt-2">
+              Supported Formats: Decimal UA, 14-char Hex UA, Formatted Hex UA (XXXX:YYYY:ZZZZ:SSI), Decimal UA (X:Y:Z:SSI), 12-Hex Glyphs.
+            </div>
           </div>
 
-          <div class="grid grid-cols-8 sm:grid-cols-16 gap-1.5 sm:gap-2">
-            <div id="glyph-font-element-0" class="glyph-display text-center cursor-pointer hover:border-cyan-400 hover:bg-slate-800 transition-colors" onclick="appendGlyphToInput('0')">0</div>
-            <div id="glyph-font-element-1" class="glyph-display text-center cursor-pointer hover:border-cyan-400 hover:bg-slate-800 transition-colors" onclick="appendGlyphToInput('1')">1</div>
-            <div id="glyph-font-element-2" class="glyph-display text-center cursor-pointer hover:border-cyan-400 hover:bg-slate-800 transition-colors" onclick="appendGlyphToInput('2')">2</div>
-            <div id="glyph-font-element-3" class="glyph-display text-center cursor-pointer hover:border-cyan-400 hover:bg-slate-800 transition-colors" onclick="appendGlyphToInput('3')">3</div>
-            <div id="glyph-font-element-4" class="glyph-display text-center cursor-pointer hover:border-cyan-400 hover:bg-slate-800 transition-colors" onclick="appendGlyphToInput('4')">4</div>
-            <div id="glyph-font-element-5" class="glyph-display text-center cursor-pointer hover:border-cyan-400 hover:bg-slate-800 transition-colors" onclick="appendGlyphToInput('5')">5</div>
-            <div id="glyph-font-element-6" class="glyph-display text-center cursor-pointer hover:border-cyan-400 hover:bg-slate-800 transition-colors" onclick="appendGlyphToInput('6')">6</div>
-            <div id="glyph-font-element-7" class="glyph-display text-center cursor-pointer hover:border-cyan-400 hover:bg-slate-800 transition-colors" onclick="appendGlyphToInput('7')">7</div>
-            <div id="glyph-font-element-8" class="glyph-display text-center cursor-pointer hover:border-cyan-400 hover:bg-slate-800 transition-colors" onclick="appendGlyphToInput('8')">8</div>
-            <div id="glyph-font-element-9" class="glyph-display text-center cursor-pointer hover:border-cyan-400 hover:bg-slate-800 transition-colors" onclick="appendGlyphToInput('9')">9</div>
-            <div id="glyph-font-element-a" class="glyph-display text-center cursor-pointer hover:border-cyan-400 hover:bg-slate-800 transition-colors" onclick="appendGlyphToInput('A')">A</div>
-            <div id="glyph-font-element-b" class="glyph-display text-center cursor-pointer hover:border-cyan-400 hover:bg-slate-800 transition-colors" onclick="appendGlyphToInput('B')">B</div>
-            <div id="glyph-font-element-c" class="glyph-display text-center cursor-pointer hover:border-cyan-400 hover:bg-slate-800 transition-colors" onclick="appendGlyphToInput('C')">C</div>
-            <div id="glyph-font-element-d" class="glyph-display text-center cursor-pointer hover:border-cyan-400 hover:bg-slate-800 transition-colors" onclick="appendGlyphToInput('D')">D</div>
-            <div id="glyph-font-element-e" class="glyph-display text-center cursor-pointer hover:border-cyan-400 hover:bg-slate-800 transition-colors" onclick="appendGlyphToInput('E')">E</div>
-            <div id="glyph-font-element-f" class="glyph-display text-center cursor-pointer hover:border-cyan-400 hover:bg-slate-800 transition-colors" onclick="appendGlyphToInput('F')">F</div>
+          <!-- Glyph Input Pad -->
+          <div class="pt-3 border-t border-slate-800 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-cyan-400 uppercase tracking-wider">Glyph Input Pad</span>
+              <button type="button" onclick="clearMasterInput()" class="px-3 py-1 bg-rose-950/80 hover:bg-rose-900 border border-rose-800 text-rose-300 font-mono text-xs rounded-lg transition-colors">
+                Clear Input
+              </button>
+            </div>
+
+            <div class="grid grid-cols-8 sm:grid-cols-16 gap-1.5 sm:gap-2">
+              <div id="glyph-font-element-0" class="glyph-display text-center cursor-pointer hover:border-cyan-400 hover:bg-slate-800 transition-colors" onclick="appendGlyphToInput('0')">0</div>
+              <div id="glyph-font-element-1" class="glyph-display text-center cursor-pointer hover:border-cyan-400 hover:bg-slate-800 transition-colors" onclick="appendGlyphToInput('1')">1</div>
+              <div id="glyph-font-element-2" class="glyph-display text-center cursor-pointer hover:border-cyan-400 hover:bg-slate-800 transition-colors" onclick="appendGlyphToInput('2')">2</div>
+              <div id="glyph-font-element-3" class="glyph-display text-center cursor-pointer hover:border-cyan-400 hover:bg-slate-800 transition-colors" onclick="appendGlyphToInput('3')">3</div>
+              <div id="glyph-font-element-4" class="glyph-display text-center cursor-pointer hover:border-cyan-400 hover:bg-slate-800 transition-colors" onclick="appendGlyphToInput('4')">4</div>
+              <div id="glyph-font-element-5" class="glyph-display text-center cursor-pointer hover:border-cyan-400 hover:bg-slate-800 transition-colors" onclick="appendGlyphToInput('5')">5</div>
+              <div id="glyph-font-element-6" class="glyph-display text-center cursor-pointer hover:border-cyan-400 hover:bg-slate-800 transition-colors" onclick="appendGlyphToInput('6')">6</div>
+              <div id="glyph-font-element-7" class="glyph-display text-center cursor-pointer hover:border-cyan-400 hover:bg-slate-800 transition-colors" onclick="appendGlyphToInput('7')">7</div>
+              <div id="glyph-font-element-8" class="glyph-display text-center cursor-pointer hover:border-cyan-400 hover:bg-slate-800 transition-colors" onclick="appendGlyphToInput('8')">8</div>
+              <div id="glyph-font-element-9" class="glyph-display text-center cursor-pointer hover:border-cyan-400 hover:bg-slate-800 transition-colors" onclick="appendGlyphToInput('9')">9</div>
+              <div id="glyph-font-element-a" class="glyph-display text-center cursor-pointer hover:border-cyan-400 hover:bg-slate-800 transition-colors" onclick="appendGlyphToInput('A')">A</div>
+              <div id="glyph-font-element-b" class="glyph-display text-center cursor-pointer hover:border-cyan-400 hover:bg-slate-800 transition-colors" onclick="appendGlyphToInput('B')">B</div>
+              <div id="glyph-font-element-c" class="glyph-display text-center cursor-pointer hover:border-cyan-400 hover:bg-slate-800 transition-colors" onclick="appendGlyphToInput('C')">C</div>
+              <div id="glyph-font-element-d" class="glyph-display text-center cursor-pointer hover:border-cyan-400 hover:bg-slate-800 transition-colors" onclick="appendGlyphToInput('D')">D</div>
+              <div id="glyph-font-element-e" class="glyph-display text-center cursor-pointer hover:border-cyan-400 hover:bg-slate-800 transition-colors" onclick="appendGlyphToInput('E')">E</div>
+              <div id="glyph-font-element-f" class="glyph-display text-center cursor-pointer hover:border-cyan-400 hover:bg-slate-800 transition-colors" onclick="appendGlyphToInput('F')">F</div>
+            </div>
           </div>
         </div>
+
+        <!-- 3D Galaxy Viewport Card (Cols 8-12) -->
+        <div class="lg:col-span-5 bg-slate-900/80 p-5 rounded-2xl border border-slate-800 space-y-3 flex flex-col justify-between">
+          <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+            <h2 class="text-sm font-bold tracking-wide text-purple-400 uppercase flex items-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5"></path></svg>
+              3D Galactic Voxel Box
+            </h2>
+            <span id="galaxy-coord-readout" class="text-xs font-mono text-cyan-300">X: 50 | Y: 126 | Z: 50</span>
+          </div>
+
+          <!-- Canvas + Vertical Slider Container -->
+          <div class="flex items-center gap-3 h-[220px] w-full relative">
+            <div id="three-galaxy-container" class="flex-1 h-full bg-slate-950 rounded-xl border border-slate-800 relative overflow-hidden cursor-crosshair">
+              <!-- Three.js Canvas appended here -->
+              <div class="absolute bottom-2 left-2 text-[10px] font-mono text-slate-500 bg-slate-900/80 px-2 py-0.5 rounded pointer-events-none">
+                Click plane to set X/Z
+              </div>
+            </div>
+
+            <!-- Y-Height Vertical Slider -->
+            <div class="flex flex-col items-center justify-between h-full py-1 bg-slate-950 px-2 rounded-xl border border-slate-800">
+              <span class="text-[9px] font-mono text-emerald-400 font-bold">+127</span>
+              <input type="range" id="3d-y-slider" min="-128" max="127" value="126" step="1"
+                     class="vertical-slider" oninput="updateYFrom3DSlider(this.value)">
+              <span class="text-[9px] font-mono text-emerald-400 font-bold">-128</span>
+            </div>
+          </div>
+
+          <div class="text-[10px] text-slate-400 font-mono flex justify-between">
+            <span>Box Extents: X/Z [-2048..2047]</span>
+            <span>Y Extents: [-128..127]</span>
+          </div>
+        </div>
+
       </section>
 
       <!-- Active Address Editor & Controls -->
@@ -271,7 +323,7 @@
                     RAND<br><span class="text-[9px] text-emerald-400">RGB Band</span>
                   </button>
                   <button onclick="setSSIPreset(1000)" class="p-1.5 bg-slate-900 hover:bg-slate-800 border border-sky-500/50 rounded-lg text-xs font-mono text-sky-300 text-center">
-                    0x03E8<br><span class="text-[9px] text-sky-400">Glass</span>
+                    0x03E8<br><span class="text-[9px] text-sky-400">Glass Start</span>
                   </button>
                   <button onclick="setRandomSSInRange(593, 600)" class="p-1.5 bg-slate-900 hover:bg-slate-800 border border-sky-500/50 rounded-lg text-xs font-mono text-sky-300 text-center">
                     RAND<br><span class="text-[9px] text-sky-400">Glass Band</span>
@@ -442,7 +494,7 @@
     <span id="toast-message">Copied to clipboard!</span>
   </div>
 
-  <!-- App Script with Embedded NMS Math Functions -->
+  <!-- App Script with Embedded NMS Math Functions & Three.js Engine -->
   <script>
     // NMS Glyph Names
     const NMS_GLYPHS = [
@@ -465,6 +517,9 @@
       voxelY: 126,
       voxelZ: 50
     };
+
+    // Three.js Globals
+    let threeScene, threeCamera, threeRenderer, targetMarker, raycaster, mousePlane;
 
     function DecToHex(decimalValue) {
       return BigInt(decimalValue).toString(16).toUpperCase().padStart(14, '0');
@@ -548,6 +603,7 @@
     // App Initialization
     document.addEventListener("DOMContentLoaded", () => {
       populateGalaxyDropdown();
+      initThreeJSGalaxy();
       document.getElementById("master-address-input").value = "000000000000000";
       processMasterInput();
     });
@@ -562,6 +618,110 @@
         option.textContent = name;
         select.appendChild(option);
       }
+    }
+
+    // --- THREE.JS GALAXY ENGINE ---
+    function initThreeJSGalaxy() {
+      const container = document.getElementById("three-galaxy-container");
+      const width = container.clientWidth;
+      const height = container.clientHeight;
+
+      threeScene = new THREE.Scene();
+      threeScene.background = new THREE.Color(0x050811);
+
+      threeCamera = new THREE.PerspectiveCamera(45, width / height, 1, 10000);
+      threeCamera.position.set(0, 3500, 3800);
+      threeCamera.lookAt(0, 0, 0);
+
+      threeRenderer = new THREE.WebGLRenderer({ antialias: true });
+      threeRenderer.setSize(width, height);
+      threeRenderer.setPixelRatio(window.devicePixelRatio);
+      container.appendChild(threeRenderer.domElement);
+
+      // Bounding Galaxy Box Wireframe (Extents: X/Z 4096, Y 256)
+      const boxGeometry = new THREE.BoxGeometry(4096, 256, 4096);
+      const boxEdges = new THREE.EdgesGeometry(boxGeometry);
+      const boxMaterial = new THREE.LineBasicMaterial({ color: 0x0284c7, transparent: true, opacity: 0.4 });
+      const galaxyWireframe = new THREE.LineSegments(boxEdges, boxMaterial);
+      threeScene.add(galaxyWireframe);
+
+      // Grid helper on bottom XZ plane
+      const grid = new THREE.GridHelper(4096, 16, 0x06b6d4, 0x1e293b);
+      grid.position.y = -128;
+      threeScene.add(grid);
+
+      // Target Voxel Sphere Marker
+      const sphereGeo = new THREE.SphereGeometry(80, 16, 16);
+      const sphereMat = new THREE.MeshBasicMaterial({ color: 0xffe600, wireframe: true });
+      targetMarker = new THREE.Mesh(sphereGeo, sphereMat);
+      threeScene.add(targetMarker);
+
+      // Invisible plane for raycasting click selection (at current Y height)
+      const planeGeo = new THREE.PlaneGeometry(4096, 4096);
+      planeGeo.rotateX(-Math.PI / 2);
+      mousePlane = new THREE.Mesh(planeGeo, new THREE.MeshBasicMaterial({ visible: false }));
+      threeScene.add(mousePlane);
+
+      raycaster = new THREE.Raycaster();
+
+      // Click event for setting X / Z from 3D Viewport
+      container.addEventListener("click", onGalaxyCanvasClick);
+
+      // Animation Loop
+      function animate() {
+        requestAnimationFrame(animate);
+        targetMarker.rotation.y += 0.02;
+        threeRenderer.render(threeScene, threeCamera);
+      }
+      animate();
+
+      window.addEventListener("resize", () => {
+        if (!container) return;
+        const w = container.clientWidth;
+        const h = container.clientHeight;
+        threeCamera.aspect = w / h;
+        threeCamera.updateProjectionMatrix();
+        threeRenderer.setSize(w, h);
+      });
+    }
+
+    function updateThreeJSMarker() {
+      if (!targetMarker) return;
+      targetMarker.position.set(activeAddressState.voxelX, activeAddressState.voxelY, activeAddressState.voxelZ);
+      if (mousePlane) mousePlane.position.y = activeAddressState.voxelY;
+
+      // Update header readout
+      document.getElementById("galaxy-coord-readout").textContent =
+        `X: ${activeAddressState.voxelX} | Y: ${activeAddressState.voxelY} | Z: ${activeAddressState.voxelZ}`;
+
+      // Update Y slider
+      document.getElementById("3d-y-slider").value = activeAddressState.voxelY;
+    }
+
+    function onGalaxyCanvasClick(event) {
+      const container = document.getElementById("three-galaxy-container");
+      const rect = container.getBoundingClientRect();
+      const mouse = new THREE.Vector2(
+        ((event.clientX - rect.left) / container.clientWidth) * 2 - 1,
+        -((event.clientY - rect.top) / container.clientHeight) * 2 + 1
+      );
+
+      raycaster.setFromCamera(mouse, threeCamera);
+      const intersects = raycaster.intersectObject(mousePlane);
+
+      if (intersects.length > 0) {
+        const point = intersects[0].point;
+        activeAddressState.voxelX = Math.round(Math.max(-2048, Math.min(2047, point.x)));
+        activeAddressState.voxelZ = Math.round(Math.max(-2048, Math.min(2047, point.z)));
+
+        renderStateToInterface();
+        showToast(`3D Voxel Set: X=${activeAddressState.voxelX}, Z=${activeAddressState.voxelZ}`);
+      }
+    }
+
+    function updateYFrom3DSlider(val) {
+      activeAddressState.voxelY = parseInt(val) || 0;
+      renderStateToInterface();
     }
 
     // Glyph Pad Append and Clear Functions
@@ -723,6 +883,7 @@
       updateSSIBehavioralCard(activeAddressState.solarSystemIndex);
       updateStatusBadge(activeAddressState.solarSystemIndex);
       updateSpectrumTrackIndicator(glyphInfo.portalCode);
+      updateThreeJSMarker();
     }
 
     // Updates the pointer line over the scrub bar and the glyph label above it
@@ -737,7 +898,6 @@
         wrapper.style.left = `${percentage}%`;
         glyphText.textContent = portalCode;
 
-        // Offset alignment near edges so text does not clip outside bounds
         if (percentage < 15) {
           wrapper.className = "absolute bottom-0 left-0 transition-all duration-150 flex flex-col items-start pointer-events-none translate-x-0";
         } else if (percentage > 85) {
@@ -904,7 +1064,6 @@
       showToast(`SSI set to ${ssiVal} (0x${ssiVal.toString(16).toUpperCase()})`);
     }
 
-    // Generic random generator for any specific min-max SSI range
     function setRandomSSInRange(min, max) {
       const randVal = Math.floor(Math.random() * (max - min + 1)) + min;
       setSSIPreset(randVal);
@@ -941,42 +1100,35 @@
       const dot = document.getElementById("system-status-dot");
       const text = document.getElementById("system-status-text");
 
-      // Single System Anchors
-      if (ssi === 121) { // 0x0079
+      if (ssi === 121) {
         badge.className = "px-5 py-2.5 rounded-xl text-sm font-bold tracking-wider uppercase flex items-center gap-2 border border-zinc-500/60 bg-zinc-950/80 text-zinc-300 shadow-lg";
         dot.className = "w-2.5 h-2.5 rounded-full bg-rose-500";
         text.textContent = `Black Hole System (SSI: 121 / 0x0079)`;
-      } else if (ssi === 122) { // 0x007A
+      } else if (ssi === 122) {
         badge.className = "px-5 py-2.5 rounded-xl text-sm font-bold tracking-wider uppercase flex items-center gap-2 border border-cyan-500/60 bg-cyan-950/60 text-cyan-300 shadow-lg";
         dot.className = "w-2.5 h-2.5 rounded-full bg-cyan-400";
         text.textContent = `Atlas Interface Node (SSI: 0x007A)`;
-      }
-      // Dissonant / Sentinel Corruption Band (0x03E8 - 0x0429)
-      else if (ssi === 1065) { // 0x0429 - Hard Shadow Exception
+      } else if (ssi === 1065) {
         badge.className = "px-5 py-2.5 rounded-xl text-sm font-bold tracking-wider uppercase flex items-center gap-2 border border-glow-purple bg-fuchsia-950/60 text-fuchsia-300 border-fuchsia-500 shadow-lg";
         dot.className = "w-2.5 h-2.5 rounded-full bg-fuchsia-400";
         text.textContent = `Hard Shadow System (SSI: 0x0429)`;
-      } else if (ssi >= 1000 && ssi < 1065) { // 0x03E8 - 0x0428 - Corrupted / Dissonant Band
+      } else if (ssi >= 1000 && ssi < 1065) {
         badge.className = "px-5 py-2.5 rounded-xl text-sm font-bold tracking-wider uppercase flex items-center gap-2 border border-glow-amber bg-amber-950/60 text-amber-300 border-amber-500 shadow-lg";
         dot.className = "w-2.5 h-2.5 rounded-full bg-fuchsia-400 animate-pulse";
         text.textContent = `Dissonant / Corrupted System (SSI: ${ssi} / 0x${ssi.toString(16).toUpperCase()})`;
-      }
-      // Phantom Ranges
-      else if (ssi >= 601 && ssi <= 999) { // 0x0259 - 0x03E7
+      } else if (ssi >= 601 && ssi <= 999) {
         badge.className = "px-5 py-2.5 rounded-xl text-sm font-bold tracking-wider uppercase flex items-center gap-2 border border-glow-purple bg-purple-950/60 text-purple-300 border-purple-500 shadow-lg animate-pulse";
         dot.className = "w-2.5 h-2.5 rounded-full bg-purple-400";
         text.textContent = `Phantom Space (SSI: ${ssi} / 0x${ssi.toString(16).toUpperCase()})`;
-      } else if (ssi >= 1066 && ssi <= 4094) { // 0x042A - 0x0FFE
+      } else if (ssi >= 1066 && ssi <= 4094) {
         badge.className = "px-5 py-2.5 rounded-xl text-sm font-bold tracking-wider uppercase flex items-center gap-2 border border-glow-purple bg-purple-950/60 text-purple-300 border-purple-500 shadow-lg animate-pulse";
         dot.className = "w-2.5 h-2.5 rounded-full bg-purple-400";
         text.textContent = `High Phantom Space (SSI: ${ssi} / 0x${ssi.toString(16).toUpperCase()})`;
-      } else if (ssi === 4095) { // 0x0FFF
+      } else if (ssi === 4095) {
         badge.className = "px-5 py-2.5 rounded-xl text-sm font-bold tracking-wider uppercase flex items-center gap-2 border border-red-600 bg-red-950/80 text-red-300 shadow-lg animate-pulse";
         dot.className = "w-2.5 h-2.5 rounded-full bg-red-500";
         text.textContent = `Overflow Boundary (SSI: 0x0FFF)`;
-      }
-      // Standard Systems Baseline
-      else {
+      } else {
         badge.className = "px-5 py-2.5 rounded-xl text-sm font-bold tracking-wider uppercase flex items-center gap-2 border border-slate-700 bg-slate-800 text-slate-300 shadow-md";
         dot.className = "w-2.5 h-2.5 rounded-full bg-cyan-400";
         text.textContent = `Standard System (SSI: ${ssi})`;
