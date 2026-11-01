@@ -206,23 +206,23 @@
           <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-5 gap-3">
             <div>
               <label class="block text-[11px] text-slate-400 mb-1">Planet Index (0-15)</label>
-              <input type="number" id="edit-planet" min="0" max="15" class="w-full bg-slate-950 border border-slate-700 text-cyan-300 font-mono text-sm rounded-xl p-2.5 focus:outline-none focus:border-cyan-500">
+              <input type="number" id="edit-planet" min="0" max="15" oninput="applyManualEdits()" class="w-full bg-slate-950 border border-slate-700 text-cyan-300 font-mono text-sm rounded-xl p-2.5 focus:outline-none focus:border-cyan-500">
             </div>
             <div>
               <label class="block text-[11px] text-slate-400 mb-1">Solar System Index (SSI)</label>
-              <input type="number" id="edit-ssi" min="0" max="4095" class="w-full bg-slate-950 border border-amber-500/50 text-amber-300 font-mono text-sm rounded-xl p-2.5 focus:outline-none focus:border-amber-500">
+              <input type="number" id="edit-ssi" min="0" max="4095" oninput="applyManualEdits()" class="w-full bg-slate-950 border border-amber-500/50 text-amber-300 font-mono text-sm rounded-xl p-2.5 focus:outline-none focus:border-amber-500">
             </div>
             <div>
               <label class="block text-[11px] text-slate-400 mb-1">Voxel X (-2048 to 2047)</label>
-              <input type="number" id="edit-vx" min="-2048" max="2047" class="w-full bg-slate-950 border border-slate-700 text-purple-300 font-mono text-sm rounded-xl p-2.5 focus:outline-none focus:border-cyan-500">
+              <input type="number" id="edit-vx" min="-2048" max="2047" oninput="applyManualEdits()" class="w-full bg-slate-950 border border-slate-700 text-purple-300 font-mono text-sm rounded-xl p-2.5 focus:outline-none focus:border-cyan-500">
             </div>
             <div>
               <label class="block text-[11px] text-slate-400 mb-1">Voxel Y (-128 to 127)</label>
-              <input type="number" id="edit-vy" min="-128" max="127" class="w-full bg-slate-950 border border-slate-700 text-emerald-300 font-mono text-sm rounded-xl p-2.5 focus:outline-none focus:border-cyan-500">
+              <input type="number" id="edit-vy" min="-128" max="127" oninput="applyManualEdits()" class="w-full bg-slate-950 border border-slate-700 text-emerald-300 font-mono text-sm rounded-xl p-2.5 focus:outline-none focus:border-cyan-500">
             </div>
             <div>
               <label class="block text-[11px] text-slate-400 mb-1">Voxel Z (-2048 to 2047)</label>
-              <input type="number" id="edit-vz" min="-2048" max="2047" class="w-full bg-slate-950 border border-slate-700 text-sky-300 font-mono text-sm rounded-xl p-2.5 focus:outline-none focus:border-cyan-500">
+              <input type="number" id="edit-vz" min="-2048" max="2047" oninput="applyManualEdits()" class="w-full bg-slate-950 border border-slate-700 text-sky-300 font-mono text-sm rounded-xl p-2.5 focus:outline-none focus:border-cyan-500">
             </div>
           </div>
 
@@ -248,11 +248,11 @@
               </div>
 
             </div>
-            <div class="flex items-end">
+            <!--div class="flex items-end">
               <button onclick="applyManualEdits()" class="w-full py-2 bg-amber-600/80 hover:bg-amber-500 text-white font-bold rounded-xl text-sm transition-all border border-amber-500">
                 Apply Modifications
               </button>
-            </div>
+            </div-->
           </div>
 
           <!-- Interactive SSI Range Spectrum Track with Vertical Pointer and Glyph Label -->
@@ -299,9 +299,14 @@
 
           <!-- SSI Structured Categorized Matrix Presets with Random Range Generators -->
           <div class="pt-3 border-t border-slate-800 space-y-3">
-            <span class="block text-xs font-bold text-amber-400 uppercase">SSI Range & Behavioral Matrix Presets</span>
+            <span class="block text-xs font-bold text-amber-400 uppercase">SSI Range & Behavioral Matrix Presets
+              <!--button onclick="toggleSSImatrix()" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-cyan-300 text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5" style="float:right">
+                Toggle SSI Controls<span id="toggle-matrix">▶</span>
+              </button-->
+            </span>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+
+            <div id="ssi-matrix" class="grid grid-cols-1 md:grid-cols-3 gap-3">
               <!-- Column 1: Core System Bands -->
               <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-2">
                 <span class="block text-[11px] font-bold text-yellow-400 uppercase border-b border-slate-800 pb-1">Core Systems & Hubs</span>
@@ -649,6 +654,7 @@
       populateGalaxyDropdownOptions();
       initThreeJSGalaxy();
       renderSavedAddressesList();
+      //toggleSSImatrix();
 
       // Close galaxy dropdown if clicked outside
       document.addEventListener("click", (e) => {
@@ -820,6 +826,14 @@
       } catch (err) {
         showToast("Error loading saved address.");
       }
+    }
+
+    function toggleSSImatrix(){
+    //
+      const panel = document.getElementById("ssi-matrix");
+      const isHidden = panel.classList.toggle("hidden");
+      const icon = document.getElementById("toggle-matrix");
+      icon.textContent = isHidden ? "▶" : "▼";
     }
 
     function toggleSavedPanel() {
@@ -1316,7 +1330,7 @@
       };
 
       renderStateToInterface();
-      showToast("Modifications applied successfully!");
+      //showToast("Modifications applied successfully!");
     }
 
     function setSSIPreset(ssiVal) {
