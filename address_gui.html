@@ -188,24 +188,39 @@
             </div>
           </div>
 
-          <!-- Interactive SSI Range Spectrum Track -->
+          <!-- Interactive SSI Range Spectrum Track with Vertical Pointer and Glyph Label -->
           <div class="pt-3 border-t border-slate-800 space-y-2">
             <div class="flex justify-between items-center text-xs font-bold text-amber-400 uppercase">
               <span>SSI Range Spectrum Scrub Track</span>
               <span id="ssi-spectrum-label" class="font-mono text-cyan-300 text-[11px]">Active SSI: 0x0001 (1)</span>
             </div>
-            <div class="w-full bg-slate-950 h-6 rounded-xl border border-slate-800 overflow-hidden flex cursor-pointer relative" id="ssi-spectrum-track">
-              <div onclick="setSSIPreset(1)" title="Core System Band (0x001 - 0x078)" class="h-full bg-yellow-500/40 hover:bg-yellow-500/70 transition-colors border-r border-slate-900" style="width: 4.68%;"></div>
-              <div onclick="setSSIPreset(121)" title="Regional Black Hole (0x0079)" class="h-full bg-rose-500 hover:bg-rose-400 transition-colors border-r border-slate-900" style="width: 0.2%;"></div>
-              <div onclick="setSSIPreset(122)" title="Regional Atlas Interface (0x007A)" class="h-full bg-cyan-400 hover:bg-cyan-300 transition-colors border-r border-slate-900" style="width: 0.2%;"></div>
-              <div onclick="setSSIPreset(123)" title="Expanded Mixed Spectral (0x007B - 0x0122)" class="h-full bg-amber-600/40 hover:bg-amber-600/70 transition-colors border-r border-slate-900" style="width: 4.12%;"></div>
+
+            <!-- Position Marker Label Header Container -->
+            <div class="relative w-full h-8 overflow-hidden pointer-events-none">
+              <div id="ssi-marker-label-wrapper" class="absolute bottom-0 left-0 transition-all duration-150 flex flex-col items-center pointer-events-none" style="left: 0%;">
+                <span id="ssi-marker-glyph-text" class="px-2 py-0.5 rounded bg-slate-950 border border-yellow-400/80 text-yellow-300 font-mono text-xs whitespace-nowrap shadow-lg tracking-wider" style="font-family: 'NMSGlyphs', monospace;">000000000000</span>
+                <div class="w-0.5 h-2 bg-yellow-400 shadow-glow"></div>
+              </div>
+            </div>
+
+            <!-- Coloured Track Container -->
+            <div class="w-full bg-slate-950 h-6 rounded-xl border border-slate-800 flex cursor-pointer relative overflow-hidden" id="ssi-spectrum-track">
+              <!-- Range Divisions -->
+              <div onclick="setSSIPreset(1)" title="Core System Band (0x001 - 0x078)" class="h-full bg-yellow-500/40 hover:bg-yellow-500/70 transition-colors border-r border-slate-900" style="width: 2.93%;"></div>
+              <div onclick="setSSIPreset(121)" title="Regional Black Hole (0x0079)" class="h-full bg-rose-500 hover:bg-rose-400 transition-colors border-r border-slate-900" style="width: 0.1%;"></div>
+              <div onclick="setSSIPreset(122)" title="Regional Atlas Interface (0x007A)" class="h-full bg-cyan-400 hover:bg-cyan-300 transition-colors border-r border-slate-900" style="width: 0.1%;"></div>
+              <div onclick="setSSIPreset(123)" title="Expanded Mixed Spectral (0x007B - 0x0122)" class="h-full bg-amber-600/40 hover:bg-amber-600/70 transition-colors border-r border-slate-900" style="width: 4.10%;"></div>
               <div onclick="setSSIPreset(291)" title="Colored Stars (Cadmium/Emeril/Indium) (0x0123 - 0x0250)" class="h-full bg-emerald-500/40 hover:bg-emerald-500/70 transition-colors border-r border-slate-900" style="width: 7.37%;"></div>
-              <div onclick="setSSIPreset(593)" title="Glass Star Threshold (0x0251 - 0x0258)" class="h-full bg-sky-400/60 hover:bg-sky-400 transition-colors border-r border-slate-900" style="width: 0.2%;"></div>
+              <div onclick="setSSIPreset(593)" title="Glass Star Threshold (0x0251 - 0x0258)" class="h-full bg-sky-400/60 hover:bg-sky-400 transition-colors border-r border-slate-900" style="width: 0.20%;"></div>
               <div onclick="setSSIPreset(601)" title="Universal Phantom Boundary (0x0259 - 0x03E7)" class="h-full bg-purple-600/50 hover:bg-purple-600/80 transition-colors border-r border-slate-900" style="width: 9.74%;"></div>
               <div onclick="setSSIPreset(1000)" title="Corrupted & Dissonant Allocations (0x03E8 - 0x0429)" class="h-full bg-fuchsia-600/60 hover:bg-fuchsia-600/90 transition-colors border-r border-slate-900" style="width: 1.61%;"></div>
-              <div onclick="setSSIPreset(1066)" title="High Phantom Space (0x042A - 0x0FFE)" class="h-full bg-indigo-900/60 hover:bg-indigo-900 transition-colors border-r border-slate-900" style="width: 71.78%;"></div>
-              <div onclick="setSSIPreset(4095)" title="Reserved Overflow Boundary (0x0FFF)" class="h-full bg-red-600 hover:bg-red-500 transition-colors" style="width: 0.1%;"></div>
+              <div onclick="setSSIPreset(1066)" title="High Phantom Space (0x042A - 0x0FFE)" class="h-full bg-indigo-900/60 hover:bg-indigo-900 transition-colors border-r border-slate-900" style="width: 73.80%;"></div>
+              <div onclick="setSSIPreset(4095)" title="Reserved Overflow Boundary (0x0FFF)" class="h-full bg-red-600 hover:bg-red-500 transition-colors" style="width: 0.05%;"></div>
+
+              <!-- Dynamic Vertical Indicator Line over track -->
+              <div id="ssi-track-pointer-line" class="absolute top-0 bottom-0 w-0.5 bg-yellow-300 shadow-[0_0_8px_rgba(255,230,0,1)] pointer-events-none transition-all duration-150 z-20" style="left: 0%;"></div>
             </div>
+
             <div class="flex justify-between text-[9px] font-mono text-slate-500">
               <span>0x000 (0)</span>
               <span>0x079/7A</span>
@@ -215,7 +230,7 @@
             </div>
           </div>
 
-          <!-- SSI Structured Categorized Matrix Presets -->
+          <!-- SSI Structured Categorized Matrix Presets with Random Range Generators -->
           <div class="pt-3 border-t border-slate-800 space-y-3">
             <span class="block text-xs font-bold text-amber-400 uppercase">SSI Range & Behavioral Matrix Presets</span>
 
@@ -225,7 +240,10 @@
                 <span class="block text-[11px] font-bold text-yellow-400 uppercase border-b border-slate-800 pb-1">Core Systems & Hubs</span>
                 <div class="grid grid-cols-2 gap-1.5">
                   <button onclick="setSSIPreset(1)" class="p-1.5 bg-slate-900 hover:bg-slate-800 border border-yellow-500/40 rounded-lg text-xs font-mono text-yellow-300 text-center">
-                    0x0001<br><span class="text-[9px] text-slate-400">Standard Core</span>
+                    0x0001<br><span class="text-[9px] text-slate-400">Core Start</span>
+                  </button>
+                  <button onclick="setRandomSSInRange(1, 120)" class="p-1.5 bg-slate-900 hover:bg-slate-800 border border-yellow-500/40 rounded-lg text-xs font-mono text-amber-300 text-center">
+                    RAND<br><span class="text-[9px] text-amber-400">Core Band</span>
                   </button>
                   <button onclick="setSSIPreset(121)" class="p-1.5 bg-slate-900 hover:bg-slate-800 border border-rose-500/50 rounded-lg text-xs font-mono text-rose-300 text-center">
                     0x0079<br><span class="text-[9px] text-rose-400">Black Hole</span>
@@ -233,8 +251,11 @@
                   <button onclick="setSSIPreset(122)" class="p-1.5 bg-slate-900 hover:bg-slate-800 border border-cyan-500/50 rounded-lg text-xs font-mono text-cyan-300 text-center">
                     0x007A<br><span class="text-[9px] text-cyan-400">Atlas Station</span>
                   </button>
-                  <button onclick="setSSIPreset(200)" class="p-1.5 bg-slate-900 hover:bg-slate-800 border border-amber-500/40 rounded-lg text-xs font-mono text-amber-300 text-center">
-                    0x00C8<br><span class="text-[9px] text-slate-400">Binary/Ternary</span>
+                  <button onclick="setSSIPreset(123)" class="p-1.5 bg-slate-900 hover:bg-slate-800 border border-amber-500/40 rounded-lg text-xs font-mono text-amber-300 text-center">
+                    0x007B<br><span class="text-[9px] text-slate-400">Expanded Start</span>
+                  </button>
+                  <button onclick="setRandomSSInRange(123, 290)" class="p-1.5 bg-slate-900 hover:bg-slate-800 border border-amber-500/40 rounded-lg text-xs font-mono text-amber-300 text-center">
+                    RAND<br><span class="text-[9px] text-amber-400">Expanded Band</span>
                   </button>
                 </div>
               </div>
@@ -243,17 +264,26 @@
               <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-2">
                 <span class="block text-[11px] font-bold text-emerald-400 uppercase border-b border-slate-800 pb-1">Spectral & Stellar Bands</span>
                 <div class="grid grid-cols-2 gap-1.5">
-                  <button onclick="setSSIPreset(300)" class="p-1.5 bg-slate-900 hover:bg-slate-800 border border-emerald-500/40 rounded-lg text-xs font-mono text-emerald-300 text-center">
-                    0x012C<br><span class="text-[9px] text-emerald-400">RGB Spectral</span>
+                  <button onclick="setSSIPreset(291)" class="p-1.5 bg-slate-900 hover:bg-slate-800 border border-emerald-500/40 rounded-lg text-xs font-mono text-emerald-300 text-center">
+                    0x0123<br><span class="text-[9px] text-emerald-400">RGB Start</span>
+                  </button>
+                  <button onclick="setRandomSSInRange(291, 592)" class="p-1.5 bg-slate-900 hover:bg-slate-800 border border-emerald-500/40 rounded-lg text-xs font-mono text-emerald-300 text-center">
+                    RAND<br><span class="text-[9px] text-emerald-400">RGB Band</span>
                   </button>
                   <button onclick="setSSIPreset(1000)" class="p-1.5 bg-slate-900 hover:bg-slate-800 border border-sky-500/50 rounded-lg text-xs font-mono text-sky-300 text-center">
-                    0x03E8<br><span class="text-[9px] text-sky-400">Glass Candidate</span>
+                    0x03E8<br><span class="text-[9px] text-sky-400">Glass</span>
+                  </button>
+                  <button onclick="setRandomSSInRange(593, 600)" class="p-1.5 bg-slate-900 hover:bg-slate-800 border border-sky-500/50 rounded-lg text-xs font-mono text-sky-300 text-center">
+                    RAND<br><span class="text-[9px] text-sky-400">Glass Band</span>
                   </button>
                   <button onclick="setSSIPreset(1000)" class="p-1.5 bg-slate-900 hover:bg-slate-800 border border-fuchsia-500/50 rounded-lg text-xs font-mono text-fuchsia-300 text-center">
-                    0x03E8<br><span class="text-[9px] text-fuchsia-400">Dissonant Core</span>
+                    0x03E8<br><span class="text-[9px] text-fuchsia-400">Dissonant Start</span>
                   </button>
-                  <button onclick="setSSIPreset(1065)" class="p-1.5 bg-slate-900 hover:bg-slate-800 border border-purple-500/50 rounded-lg text-xs font-mono text-purple-300 text-center">
-                    0x0429<br><span class="text-[9px] text-purple-400">Hard Shadow</span>
+                  <button onclick="setRandomSSInRange(1000, 1064)" class="p-1.5 bg-slate-900 hover:bg-slate-800 border border-fuchsia-500/50 rounded-lg text-xs font-mono text-fuchsia-300 text-center">
+                    RAND<br><span class="text-[9px] text-fuchsia-400">Dissonant Band</span>
+                  </button>
+                  <button onclick="setSSIPreset(1065)" class="p-1.5 bg-slate-900 hover:bg-slate-800 border border-purple-500/50 rounded-lg text-xs font-mono text-purple-300 text-center col-span-2">
+                    0x0429<br><span class="text-[9px] text-purple-400">Hard Shadow System</span>
                   </button>
                 </div>
               </div>
@@ -263,16 +293,19 @@
                 <span class="block text-[11px] font-bold text-purple-400 uppercase border-b border-slate-800 pb-1">Corrupted & Phantom</span>
                 <div class="grid grid-cols-2 gap-1.5">
                   <button onclick="setSSIPreset(601)" class="p-1.5 bg-slate-900 hover:bg-slate-800 border border-purple-500/50 rounded-lg text-xs font-mono text-purple-300 text-center">
-                    0x0259<br><span class="text-[9px] text-purple-400">Min Phantom</span>
+                    0x0259<br><span class="text-[9px] text-purple-400">Phantom Start</span>
                   </button>
-                  <button onclick="setSSIPreset(2048)" class="p-1.5 bg-slate-900 hover:bg-slate-800 border border-indigo-500/50 rounded-lg text-xs font-mono text-indigo-300 text-center">
-                    0x0800<br><span class="text-[9px] text-indigo-400">High Phantom</span>
+                  <button onclick="setRandomSSInRange(601, 999)" class="p-1.5 bg-slate-900 hover:bg-slate-800 border border-purple-500/50 rounded-lg text-xs font-mono text-purple-300 text-center">
+                    RAND<br><span class="text-[9px] text-purple-400">Phantom Band</span>
                   </button>
-                  <button onclick="setRandomPhantomSSI()" class="p-1.5 bg-slate-900 hover:bg-slate-800 border border-cyan-500/50 rounded-lg text-xs font-mono text-cyan-300 text-center">
-                    RAND<br><span class="text-[9px] text-cyan-400">Rand Phantom</span>
+                  <button onclick="setSSIPreset(1066)" class="p-1.5 bg-slate-900 hover:bg-slate-800 border border-indigo-500/50 rounded-lg text-xs font-mono text-indigo-300 text-center">
+                    0x042A<br><span class="text-[9px] text-indigo-400">High Phantom Start</span>
                   </button>
-                  <button onclick="setSSIPreset(4095)" class="p-1.5 bg-slate-900 hover:bg-slate-800 border border-rose-600 rounded-lg text-xs font-mono text-rose-300 text-center">
-                    0x0FFF<br><span class="text-[9px] text-rose-400">Overflow Lock</span>
+                  <button onclick="setRandomSSInRange(1066, 4094)" class="p-1.5 bg-slate-900 hover:bg-slate-800 border border-indigo-500/50 rounded-lg text-xs font-mono text-indigo-300 text-center">
+                    RAND<br><span class="text-[9px] text-indigo-400">High Phantom Band</span>
+                  </button>
+                  <button onclick="setSSIPreset(4095)" class="p-1.5 bg-slate-900 hover:bg-slate-800 border border-rose-600 rounded-lg text-xs font-mono text-rose-300 text-center col-span-2">
+                    0x0FFF<br><span class="text-[9px] text-rose-400">Overflow Boundary Lock</span>
                   </button>
                 </div>
               </div>
@@ -640,7 +673,7 @@
       }
     }
 
-    // Sync State to Form Controls, Dynamic Behavioral Card, & Outputs
+    // Sync State to Form Controls, Dynamic Behavioral Card, Scrub Track Line, & Outputs
     function renderStateToInterface() {
       document.getElementById("edit-planet").value = activeAddressState.planetIndex;
       document.getElementById("edit-ssi").value = activeAddressState.solarSystemIndex;
@@ -689,6 +722,30 @@
 
       updateSSIBehavioralCard(activeAddressState.solarSystemIndex);
       updateStatusBadge(activeAddressState.solarSystemIndex);
+      updateSpectrumTrackIndicator(glyphInfo.portalCode);
+    }
+
+    // Updates the pointer line over the scrub bar and the glyph label above it
+    function updateSpectrumTrackIndicator(portalCode) {
+      const percentage = (activeAddressState.solarSystemIndex / 4095) * 100;
+      const pointerLine = document.getElementById("ssi-track-pointer-line");
+      const wrapper = document.getElementById("ssi-marker-label-wrapper");
+      const glyphText = document.getElementById("ssi-marker-glyph-text");
+
+      if (pointerLine && wrapper && glyphText) {
+        pointerLine.style.left = `${percentage}%`;
+        wrapper.style.left = `${percentage}%`;
+        glyphText.textContent = portalCode;
+
+        // Offset alignment near edges so text does not clip outside bounds
+        if (percentage < 15) {
+          wrapper.className = "absolute bottom-0 left-0 transition-all duration-150 flex flex-col items-start pointer-events-none translate-x-0";
+        } else if (percentage > 85) {
+          wrapper.className = "absolute bottom-0 left-0 transition-all duration-150 flex flex-col items-end pointer-events-none -translate-x-full";
+        } else {
+          wrapper.className = "absolute bottom-0 left-0 transition-all duration-150 flex flex-col items-center pointer-events-none -translate-x-1/2";
+        }
+      }
     }
 
     // Dynamic Evaluation of SSI Bands
@@ -715,7 +772,7 @@
         mapVis.textContent = "Standard Rendered Node";
         mapVis.className = "text-slate-300";
       }
-      else if (ssi >= 1 && ssi <= 120) { // 0x001 - 0x078
+      else if (ssi >= 1 && ssi <= 120) {
         title.textContent = "Core System Band (Standard Stars)";
         title.className = "text-xs font-bold text-yellow-400 uppercase";
         hexSpan.textContent = "0x001 – 0x078 (1-120 Dec)";
@@ -726,7 +783,7 @@
         mapVis.textContent = "Standard Rendered Star Node";
         mapVis.className = "text-cyan-300";
       }
-      else if (ssi === 121) { // 0x0079
+      else if (ssi === 121) {
         title.textContent = "Regional Black Hole Anchor";
         title.className = "text-xs font-bold text-rose-400 uppercase";
         hexSpan.textContent = "0x0079 (121 Dec)";
@@ -737,7 +794,7 @@
         mapVis.textContent = "Black Hole Icon & Rendered Node";
         mapVis.className = "text-rose-400 font-bold";
       }
-      else if (ssi === 122) { // 0x007A
+      else if (ssi === 122) {
         title.textContent = "Regional Atlas Interface Anchor";
         title.className = "text-xs font-bold text-cyan-400 uppercase";
         hexSpan.textContent = "0x007A (122 Dec)";
@@ -748,7 +805,7 @@
         mapVis.textContent = "Atlas Station Icon & Rendered Node";
         mapVis.className = "text-cyan-300 font-bold";
       }
-      else if (ssi >= 123 && ssi <= 290) { // 0x007B - 0x0122
+      else if (ssi >= 123 && ssi <= 290) {
         title.textContent = "Expanded Mixed Spectral Band";
         title.className = "text-xs font-bold text-amber-400 uppercase";
         hexSpan.textContent = "0x007B – 0x0122 (123-290 Dec)";
@@ -759,7 +816,7 @@
         mapVis.textContent = "Standard Rendered Star Node";
         mapVis.className = "text-slate-300";
       }
-      else if (ssi >= 291 && ssi <= 592) { // 0x0123 - 0x0250
+      else if (ssi >= 291 && ssi <= 592) {
         title.textContent = "High-Index Spectral (Colored Stars)";
         title.className = "text-xs font-bold text-emerald-400 uppercase";
         hexSpan.textContent = "0x0123 – 0x0250 (291-592 Dec)";
@@ -770,7 +827,7 @@
         mapVis.textContent = "Rendered Colored Star Node";
         mapVis.className = "text-emerald-300";
       }
-      else if (ssi >= 593 && ssi <= 600) { // 0x0251 - 0x0258
+      else if (ssi >= 593 && ssi <= 600) {
         title.textContent = "Dense Threshold & Glass Star Candidates";
         title.className = "text-xs font-bold text-sky-400 uppercase";
         hexSpan.textContent = "0x0251 – 0x0258 (593-600 Dec)";
@@ -781,7 +838,7 @@
         mapVis.textContent = "Conditional Node Rendering";
         mapVis.className = "text-sky-300";
       }
-      else if (ssi >= 601 && ssi <= 999) { // 0x0259 - 0x03E7
+      else if (ssi >= 601 && ssi <= 999) {
         title.textContent = "Universal Phantom Space Boundary";
         title.className = "text-xs font-bold text-purple-400 uppercase";
         hexSpan.textContent = "0x0259 – 0x03E7 (601-999 Dec)";
@@ -792,7 +849,7 @@
         mapVis.textContent = "HIDDEN: No Star Node on Galaxy Map";
         mapVis.className = "text-purple-400 font-bold";
       }
-      else if (ssi >= 1000 && ssi <= 1065) { // 0x03E8 - 0x0429
+      else if (ssi >= 1000 && ssi <= 1065) {
         title.textContent = "Corrupted & Dissonant Allocations";
         title.className = "text-xs font-bold text-fuchsia-400 uppercase";
         hexSpan.textContent = "0x03E8 – 0x0429 (1000-1065 Dec)";
@@ -803,7 +860,7 @@
         mapVis.textContent = ssi === 1065 ? "VISIBLE: Hard Shadow System" : "Dissonant Node Variant";
         mapVis.className = "text-fuchsia-300";
       }
-      else if (ssi >= 1066 && ssi <= 4094) { // 0x042A - 0x0FFE
+      else if (ssi >= 1066 && ssi <= 4094) {
         title.textContent = "High Phantom Space";
         title.className = "text-xs font-bold text-indigo-400 uppercase";
         hexSpan.textContent = "0x042A – 0x0FFE (1066-4094 Dec)";
@@ -814,7 +871,7 @@
         mapVis.textContent = "HIDDEN: Off-Grid";
         mapVis.className = "text-indigo-300";
       }
-      else if (ssi === 4095) { // 0x0FFF
+      else if (ssi === 4095) {
         title.textContent = "Reserved Overflow Boundary";
         title.className = "text-xs font-bold text-red-500 uppercase animate-pulse";
         hexSpan.textContent = "0x0FFF (4095 Dec)";
@@ -847,11 +904,10 @@
       showToast(`SSI set to ${ssiVal} (0x${ssiVal.toString(16).toUpperCase()})`);
     }
 
-    function setRandomPhantomSSI() {
-      const min = 601;
-      const max = 4000;
-      const randDecimal = Math.floor(Math.random() * (max - min + 1)) + min;
-      setSSIPreset(randDecimal);
+    // Generic random generator for any specific min-max SSI range
+    function setRandomSSInRange(min, max) {
+      const randVal = Math.floor(Math.random() * (max - min + 1)) + min;
+      setSSIPreset(randVal);
     }
 
     function reversePlayerJsonToUA(format) {
@@ -885,35 +941,42 @@
       const dot = document.getElementById("system-status-dot");
       const text = document.getElementById("system-status-text");
 
-      if (ssi === 1000) {
-        badge.className = "px-5 py-2.5 rounded-xl text-sm font-bold tracking-wider uppercase flex items-center gap-2 border border-glow-amber bg-amber-950/60 text-amber-300 border-amber-500 shadow-lg";
-        dot.className = "w-2.5 h-2.5 rounded-full bg-amber-400";
-        text.textContent = `Dissonant System (SSI: 1000 / 0x03E8)`;
-      } else if (ssi === 121) {
+      // Single System Anchors
+      if (ssi === 121) { // 0x0079
         badge.className = "px-5 py-2.5 rounded-xl text-sm font-bold tracking-wider uppercase flex items-center gap-2 border border-zinc-500/60 bg-zinc-950/80 text-zinc-300 shadow-lg";
         dot.className = "w-2.5 h-2.5 rounded-full bg-rose-500";
         text.textContent = `Black Hole System (SSI: 121 / 0x0079)`;
-      } else if (ssi >= 601 && ssi <= 999) {
-        badge.className = "px-5 py-2.5 rounded-xl text-sm font-bold tracking-wider uppercase flex items-center gap-2 border border-glow-purple bg-purple-950/60 text-purple-300 border-purple-500 shadow-lg animate-pulse";
-        dot.className = "w-2.5 h-2.5 rounded-full bg-purple-400";
-        text.textContent = `Phantom Space (SSI: ${ssi} / 0x${ssi.toString(16).toUpperCase()})`;
-      } else if (ssi === 1065) {
-        badge.className = "px-5 py-2.5 rounded-xl text-sm font-bold tracking-wider uppercase flex items-center gap-2 border border-glow-purple bg-fuchsia-950/60 text-fuchsia-300 border-fuchsia-500 shadow-lg";
-        dot.className = "w-2.5 h-2.5 rounded-full bg-fuchsia-400";
-        text.textContent = `Hard Shadow System (SSI: 0x0429)`;
-      } else if (ssi === 122) {
+      } else if (ssi === 122) { // 0x007A
         badge.className = "px-5 py-2.5 rounded-xl text-sm font-bold tracking-wider uppercase flex items-center gap-2 border border-cyan-500/60 bg-cyan-950/60 text-cyan-300 shadow-lg";
         dot.className = "w-2.5 h-2.5 rounded-full bg-cyan-400";
         text.textContent = `Atlas Interface Node (SSI: 0x007A)`;
-      } else if (ssi >= 1066 && ssi <= 4094) {
+      }
+      // Dissonant / Sentinel Corruption Band (0x03E8 - 0x0429)
+      else if (ssi === 1065) { // 0x0429 - Hard Shadow Exception
+        badge.className = "px-5 py-2.5 rounded-xl text-sm font-bold tracking-wider uppercase flex items-center gap-2 border border-glow-purple bg-fuchsia-950/60 text-fuchsia-300 border-fuchsia-500 shadow-lg";
+        dot.className = "w-2.5 h-2.5 rounded-full bg-fuchsia-400";
+        text.textContent = `Hard Shadow System (SSI: 0x0429)`;
+      } else if (ssi >= 1000 && ssi < 1065) { // 0x03E8 - 0x0428 - Corrupted / Dissonant Band
+        badge.className = "px-5 py-2.5 rounded-xl text-sm font-bold tracking-wider uppercase flex items-center gap-2 border border-glow-amber bg-amber-950/60 text-amber-300 border-amber-500 shadow-lg";
+        dot.className = "w-2.5 h-2.5 rounded-full bg-fuchsia-400 animate-pulse";
+        text.textContent = `Dissonant / Corrupted System (SSI: ${ssi} / 0x${ssi.toString(16).toUpperCase()})`;
+      }
+      // Phantom Ranges
+      else if (ssi >= 601 && ssi <= 999) { // 0x0259 - 0x03E7
+        badge.className = "px-5 py-2.5 rounded-xl text-sm font-bold tracking-wider uppercase flex items-center gap-2 border border-glow-purple bg-purple-950/60 text-purple-300 border-purple-500 shadow-lg animate-pulse";
+        dot.className = "w-2.5 h-2.5 rounded-full bg-purple-400";
+        text.textContent = `Phantom Space (SSI: ${ssi} / 0x${ssi.toString(16).toUpperCase()})`;
+      } else if (ssi >= 1066 && ssi <= 4094) { // 0x042A - 0x0FFE
         badge.className = "px-5 py-2.5 rounded-xl text-sm font-bold tracking-wider uppercase flex items-center gap-2 border border-glow-purple bg-purple-950/60 text-purple-300 border-purple-500 shadow-lg animate-pulse";
         dot.className = "w-2.5 h-2.5 rounded-full bg-purple-400";
         text.textContent = `High Phantom Space (SSI: ${ssi} / 0x${ssi.toString(16).toUpperCase()})`;
-      } else if (ssi === 4095) {
+      } else if (ssi === 4095) { // 0x0FFF
         badge.className = "px-5 py-2.5 rounded-xl text-sm font-bold tracking-wider uppercase flex items-center gap-2 border border-red-600 bg-red-950/80 text-red-300 shadow-lg animate-pulse";
         dot.className = "w-2.5 h-2.5 rounded-full bg-red-500";
         text.textContent = `Overflow Boundary (SSI: 0x0FFF)`;
-      } else {
+      }
+      // Standard Systems Baseline
+      else {
         badge.className = "px-5 py-2.5 rounded-xl text-sm font-bold tracking-wider uppercase flex items-center gap-2 border border-slate-700 bg-slate-800 text-slate-300 shadow-md";
         dot.className = "w-2.5 h-2.5 rounded-full bg-cyan-400";
         text.textContent = `Standard System (SSI: ${ssi})`;
